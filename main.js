@@ -38,6 +38,54 @@ function callApi(url, data, progress) {
   });
 }
 
+function submitSatusPage(){
+  var page = tabris.create("Page", {
+    title: "sending",
+  });
+
+  page.open();
+
+  var sendingOrder = tabris.create("TextView", {
+	  text: "Sending Order......",
+	  layoutData: {centerX: 0, centerY: -20},
+	}).appendTo(page);
+
+  var progressBar =tabris.create("ProgressBar",{
+	  layoutData: {left: 15, right: 15, centerY: 0},
+	  maximum: 500,
+	  selection: 0
+	}).appendTo(page);
+
+	setTimeout(function(){
+	  progressBar.set("selection", 100)
+	}, 500);
+
+	//Need to create the initial data to optain an order id
+  var data = initialOrderData();   
+
+  fetch(ordersUrl, {
+      method: "POST",
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization': "Basic " + key
+      },
+      body: JSON.stringify(data)
+  }).then(function (response) {
+      console.log(response.status);
+      progressBar.set("selection", 200);
+      return response.json();
+  }).then(function(json){
+  	//Once the order has been created, now is time to add the rest of the order data
+    addCustomerToOrder(json.id, progressBar);
+    addDeviceToOrder(json.id, progressBar);
+    addStatusToOrder(json.id, progressBar);
+  }).catch(function (err) {
+      console.log(err);
+  });
+
+}
+
 var page = tabris.create("Page", {
   title: "XMLHttpRequest via fetch()",
   topLevel: true
@@ -135,51 +183,7 @@ tabris.create("RadioButton", {
 tabris.create("Button", {
   id: "sendButton",
   text: "Send Order",
-}).on("select", function(){
-  var page = tabris.create("Page", {
-    title: "sending",
-  });
-
-  page.open();
-
-  var sendingOrder = tabris.create("TextView", {
-  text: "Sending Order......",
-  layoutData: {centerX: 0, centerY: -20},
-}).appendTo(page);
-
-  var progressBar =tabris.create("ProgressBar",{
-  layoutData: {left: 15, right: 15, centerY: 0},
-  maximum: 500,
-  selection: 0
-}).appendTo(page);
-
-setTimeout(function(){
-  progressBar.set("selection", 100)
-}, 500);
-
-  var data = createOrder();
-
-  fetch(ordersUrl, {
-      method: "POST",
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': "Basic " + key
-      },
-      body: JSON.stringify(data)
-  }).then(function (response) {
-      console.log(response.status);
-      progressBar.set("selection", 200);
-      return response.json();
-  }).then(function(json){
-    addCustomerToOrder(json.id, progressBar);
-    addDeviceToOrder(json.id, progressBar);
-    addStatusToOrder(json.id, progressBar);
-  }).catch(function (err) {
-      console.log(err);
-  });
-
-}).appendTo(scrollView);
+}).on("select", submitSatusPage).appendTo(scrollView);
 
 
 addToOrder.apply({
@@ -223,7 +227,7 @@ function hasChargerSelection() {
   return "No"
 }
 
-function createOrder() {
+function initialOrderData() {
   var data = {
     date: getDate(),
     price: scrollView.children("#quotedPriceInput").get("text"),
@@ -261,7 +265,8 @@ function addStatusToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
       order_id: id,
-      status: "Order Taken",
+      // initial order status, not need to be dynamic. 
+      status: "Order Taken", 
       date: getDate(),
   };
 
