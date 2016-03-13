@@ -5,6 +5,7 @@ var getDate = require("./getDate");
 var fake = require("./fake");
 
 
+
 var key = btoa('key-1:wqWw2pRzOIMqlAV7gCRP');
 var bookId = "56bfaf8ff7535b0300f5277d";
 var baseUrl = "https://api.fieldbook.com/v1/" + bookId;
@@ -16,7 +17,7 @@ var techsUrl = baseUrl + '/techs';
 var statusesUrl = baseUrl + '/statuses';
 var storesUrl = baseUrl + '/stores';
 
-function callApi(url, data) {
+function callApi(url, data, progress) {
   fetch(url, {
       method: "POST",
       headers: {
@@ -27,6 +28,10 @@ function callApi(url, data) {
       body: JSON.stringify(data)
   }).then(function (response) {
       console.log("Status:: " + response.status);
+      if(progress){
+        var currentSelection = progress.get("selection");
+        progress.set("selection", currentSelection + 100)
+      }
       resetOrderForm();
   }).catch(function (err) {
       console.log(err);
@@ -131,6 +136,27 @@ tabris.create("Button", {
   id: "sendButton",
   text: "Send Order",
 }).on("select", function(){
+  var page = tabris.create("Page", {
+    title: "sending",
+  });
+
+  page.open();
+
+  var sendingOrder = tabris.create("TextView", {
+  text: "Sending Order......",
+  layoutData: {centerX: 0, centerY: -20},
+}).appendTo(page);
+
+  var progressBar =tabris.create("ProgressBar",{
+  layoutData: {left: 15, right: 15, centerY: 0},
+  maximum: 500,
+  selection: 0
+}).appendTo(page);
+
+setTimeout(function(){
+  progressBar.set("selection", 100)
+}, 500);
+
   var data = createOrder();
 
   fetch(ordersUrl, {
@@ -143,11 +169,12 @@ tabris.create("Button", {
       body: JSON.stringify(data)
   }).then(function (response) {
       console.log(response.status);
+      progressBar.set("selection", 200);
       return response.json();
   }).then(function(json){
-    addCustomerToOrder(json.id);
-    addDeviceToOrder(json.id);
-    addStatusToOrder(json.id);
+    addCustomerToOrder(json.id, progressBar);
+    addDeviceToOrder(json.id, progressBar);
+    addStatusToOrder(json.id, progressBar);
   }).catch(function (err) {
       console.log(err);
   });
@@ -206,7 +233,7 @@ function createOrder() {
   return data;
 }
 
-function addCustomerToOrder(orderId) {
+function addCustomerToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
         order_id: id,
@@ -214,10 +241,10 @@ function addCustomerToOrder(orderId) {
         phone_number: scrollView.children("#phoneNumberInput").get("text")
   };
 
-  callApi(customerUrl, data);
+  callApi(customerUrl, data, progress);
 }
 
-function addDeviceToOrder(orderId) {
+function addDeviceToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
       order_id: id,
@@ -227,10 +254,10 @@ function addDeviceToOrder(orderId) {
       device_issues: scrollView.children("#deviceIssuesInput").get("text")  
   };
 
-  callApi(devicesUrl, data);
+  callApi(devicesUrl, data, progress);
 }
 
-function addStatusToOrder(orderId) {
+function addStatusToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
       order_id: id,
@@ -238,7 +265,7 @@ function addStatusToOrder(orderId) {
       date: getDate(),
   };
 
-  callApi(statusesUrl, data);
+  callApi(statusesUrl, data, progress);
 }
 
 
