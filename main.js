@@ -31,59 +31,74 @@ function callApi(url, data, progress) {
       if(progress){
         var currentSelection = progress.get("selection");
         progress.set("selection", currentSelection + 100)
+
+        if(progress.get("selection") > 400){
+          resetOrderForm(); //Reset form only after the last promise resolves 
+        }
       }
-      resetOrderForm();
   }).catch(function (err) {
       console.log(err);
   });
 }
 
-function submitSatusPage(){
+function createSubmitStatusPage(){
   var page = tabris.create("Page", {
     title: "sending",
+    topLevel: true,
+    id: "statusPage"
   });
 
-  page.open();
 
-  var sendingOrder = tabris.create("TextView", {
-	  text: "Sending Order......",
-	  layoutData: {centerX: 0, centerY: -20},
-	}).appendTo(page);
+  if(isOrderValid()){
+    page.open();
 
-  var progressBar =tabris.create("ProgressBar",{
-	  layoutData: {left: 15, right: 15, centerY: 0},
-	  maximum: 500,
-	  selection: 0
-	}).appendTo(page);
+    var sendingOrder = tabris.create("TextView", {
+      text: "Sending Order......",
+      layoutData: {centerX: 0, centerY: -20},
+    }).appendTo(page);
 
-	setTimeout(function(){
-	  progressBar.set("selection", 100)
-	}, 500);
+    var progressBar = tabris.create("ProgressBar",{
+      layoutData: {left: 15, right: 15, centerY: 0},
+      maximum: 500,
+      selection: 0
+    }).on("change:selection", function(progressBar, selection) {
+      if(selection === 500){
+        setTimeout(function(){
+          page.close();
+        }, 500);
+      }
+    }).appendTo(page);
 
-	//Need to create the initial data to optain an order id
-  var data = initialOrderData();   
+    setTimeout(function(){
+      progressBar.set("selection", 100)
+    }, 500);
 
-  fetch(ordersUrl, {
-      method: "POST",
-      headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Authorization': "Basic " + key
-      },
-      body: JSON.stringify(data)
-  }).then(function (response) {
-      console.log(response.status);
-      progressBar.set("selection", 200);
-      return response.json();
-  }).then(function(json){
-  	//Once the order has been created, now is time to add the rest of the order data
-    addCustomerToOrder(json.id, progressBar);
-    addDeviceToOrder(json.id, progressBar);
-    addStatusToOrder(json.id, progressBar);
-  }).catch(function (err) {
-      console.log(err);
-  });
+    //Need to create the initial data to optain an order id
+    var data = initialOrderData();
 
+      
+
+    fetch(ordersUrl, {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': "Basic " + key
+        },
+        body: JSON.stringify(data)
+    }).then(function (response) {
+        console.log(response.status);
+        progressBar.set("selection", 200);
+        return response.json();
+    }).then(function(json){
+     //Once the order has been created, now is time to add the rest of the order data
+      addCustomerToOrder(json.id, progressBar);
+      addDeviceToOrder(json.id, progressBar);
+      addStatusToOrder(json.id, progressBar);
+    }).catch(function (err) {
+        console.log(err);
+    });
+  };
 }
 
 var page = tabris.create("Page", {
@@ -162,7 +177,7 @@ tabris.create("TextView", {
 
 tabris.create("Picker", {
   id: "brandPicker",
-  items: ["Acer", "Apple", "Asus"]
+  items: ["Select Brand", "Acer", "Apple", "Asus"]
 }).appendTo(scrollView);
 
 tabris.create("TextView", {
@@ -183,7 +198,7 @@ tabris.create("RadioButton", {
 tabris.create("Button", {
   id: "sendButton",
   text: "Send Order",
-}).on("select", submitSatusPage).appendTo(scrollView);
+}).on("select", createSubmitStatusPage).appendTo(scrollView);
 
 
 addToOrder.apply({
@@ -216,6 +231,35 @@ function resetOrderForm() {
   "#withOutCharger": {selection: false},
   "#brandPicker": {selectionIndex: 0}
 });
+}
+
+function validateInput(selector, type, value) {
+  var currentValue = scrollView.children(selector).get(type);
+  if(currentValue === value){
+    return false
+  } else {
+    return true
+  }
+}
+
+function isOrderValid() {
+  var inputValues = [];
+  var valid = true;
+  inputValues.push(validateInput("#customerNameInput", "text", ""));
+  inputValues.push(validateInput("#phoneNumberInput", "text", ""));
+  inputValues.push(validateInput("#devicePasswordInput", "text", ""));
+  inputValues.push(validateInput("#quotedPriceInput", "text", ""));
+  inputValues.push(validateInput("#deviceIssuesInput", "text", ""));
+  inputValues.push(validateInput("#withCharger", "selection", false) || validateInput("#withOutCharger", "selection", false));
+  inputValues.push(validateInput("#brandPicker", "selectionIndex", 0));
+
+  inputValues.forEach(function (el) {
+    if(!el){
+      valid = false
+    }
+  });
+
+  return valid;
 }
 
 function hasChargerSelection() {
@@ -275,12 +319,12 @@ function addStatusToOrder(orderId, progress) {
 
 
 
-var drawer = tabris.create("Drawer");
+// var drawer = tabris.create("Drawer");
 
 
-tabris.create("PageSelector", {
-  layoutData: {left: 0, top: 15, right: 0, bottom: 0}
-}).appendTo(drawer);
+// tabris.create("PageSelector", {
+//   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
+// }).appendTo(drawer);
 
 tabris.create("PageSelector", {
   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
