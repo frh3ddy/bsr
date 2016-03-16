@@ -41,6 +41,27 @@ function callApi(url, data, progress) {
   });
 }
 
+function getOrdersList(url) {
+  fetch(url, {
+      method: "GET",
+      headers: {
+          'Accept': 'application/json',
+          'Authorization': "Basic " + key
+      }
+  }).then(function (response) {
+      console.log("Status:: " + response.status);
+      return response.json();
+  }).then(function(j) {
+    j.forEach(function(el){
+      console.log(el)
+    }) 
+  }).catch(function (err) {
+      console.log(err);
+  });
+}
+
+getOrdersList(ordersUrl);
+
 function createSubmitStatusPage(){
   var page = tabris.create("Page", {
     title: "sending",
@@ -102,13 +123,14 @@ function createSubmitStatusPage(){
 }
 
 var page = tabris.create("Page", {
-  title: "XMLHttpRequest via fetch()",
+  title: "DashBoard",
   topLevel: true
 });
 
-var addToOrder =  createPage("Add Order");
-
-createPage("Order List");
+var addToOrder =  tabris.create("Page", {
+    title: "Add Order",
+    topLevel: true
+  });
 
 var scrollView = tabris.create("ScrollView", {
   left: 0, right: 0, top: 0, bottom: 0
@@ -326,17 +348,10 @@ function addStatusToOrder(orderId, progress) {
 //   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
 // }).appendTo(drawer);
 
+
+
 tabris.create("PageSelector", {
   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
 }).appendTo(page);
-
-function createPage(title) {
-  var page = tabris.create("Page", {
-    title: title,
-    topLevel: true
-  });
-
-  return page;
-}
 
 page.open();
