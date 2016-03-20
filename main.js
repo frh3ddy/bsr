@@ -3,8 +3,10 @@ require("whatwg-fetch");
 var btoa = require("./btoa");
 var getDate = require("./getDate");
 var fake = require("./fake");
+var someData =  require("./data")
 
-
+var MARGIN = 12;
+var loading;
 
 var key = btoa('key-1:wqWw2pRzOIMqlAV7gCRP');
 var bookId = "56bfaf8ff7535b0300f5277d";
@@ -40,27 +42,6 @@ function callApi(url, data, progress) {
       console.log(err);
   });
 }
-
-function getOrdersList(url) {
-  fetch(url, {
-      method: "GET",
-      headers: {
-          'Accept': 'application/json',
-          'Authorization': "Basic " + key
-      }
-  }).then(function (response) {
-      console.log("Status:: " + response.status);
-      return response.json();
-  }).then(function(j) {
-    j.forEach(function(el){
-      console.log(el)
-    }) 
-  }).catch(function (err) {
-      console.log(err);
-  });
-}
-
-getOrdersList(ordersUrl);
 
 function createSubmitStatusPage(){
   var page = tabris.create("Page", {
@@ -126,6 +107,53 @@ var page = tabris.create("Page", {
   title: "DashBoard",
   topLevel: true
 });
+
+var ordersListPage = tabris.create("Page", {
+  title: "Orders",
+  topLevel: true
+});
+
+var ordersCollectionList = tabris.create("CollectionView", {
+  layoutData: {left: 0, top: 0, right: 0, bottom: 0},
+  items: someData,
+  itemHeight: 82,
+  initializeCell: function(cell) {
+    var divider =  tabris.create("Composite", {
+      background: "#d3d3d3"
+    }).appendTo(cell);
+    var imageView = tabris.create("ImageView", {
+      left: MARGIN, top: 6, width: 70, height: 70,
+      scaleMode: "fill"
+    }).appendTo(cell);
+    var nameView = tabris.create("TextView", {
+      maxLines: 2,
+      font: "16px",
+      markupEnabled: true
+    }).appendTo(cell);
+    var authorView = tabris.create("TextView", {
+      textColor: "#234"
+    }).appendTo(cell);
+    var commentsView = tabris.create("TextView", {
+      alignment: "right",
+      textColor: "green"
+    }).appendTo(cell);
+    cell.on("change:item", function(widget, item) {
+      imageView.set("image", "images/" + item.device.brand.toLowerCase()+ ".png");
+      nameView.set("text", "<strong>" + item.customer.name + "</strong>");
+      authorView.set("text", item.device.brand);
+      commentsView.set("text", item.status.status);
+    }).on("resize", function() {
+      var cellWidth = cell.get("bounds").width;
+      var textWidth = 200;
+      nameView.set({left: 104, top: 6, width: cellWidth - textWidth - MARGIN});
+      authorView.set({top: 54, left: 104, height: 20, width: textWidth});
+      divider.set({top: 81, left: 104, height: .5, width: cellWidth - 104});
+      commentsView.set({top: 54, left: cellWidth - textWidth - MARGIN, height: 20, width: textWidth});
+    });
+  }
+}).on("select", function(target, value) {
+    console.log("selected", value.customer.name);
+}).appendTo(ordersListPage);
 
 var addToOrder =  tabris.create("Page", {
     title: "Add Order",
