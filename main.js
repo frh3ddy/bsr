@@ -103,15 +103,24 @@ function createSubmitStatusPage(){
   };
 }
 
-var page = tabris.create("Page", {
+var dashboardPage = tabris.create("Page", {
   title: "DashBoard",
   topLevel: true
 });
+
+var dashboardContainer = tabris.create("ScrollView", {
+  layoutData: {left: 0, right: 0, top: 0, bottom: 49},
+}).appendTo(dashboardPage);
 
 var ordersListPage = tabris.create("Page", {
   title: "Orders",
   topLevel: true
 });
+
+var orderListContainer = tabris.create("Composite", {
+  id: "container",
+  layoutData: {left: 0, top: 0, bottom: 49, right: 0}
+}).appendTo(ordersListPage);
 
 var ordersCollectionList = tabris.create("CollectionView", {
   layoutData: {left: 0, top: 0, right: 0, bottom: 0},
@@ -121,134 +130,244 @@ var ordersCollectionList = tabris.create("CollectionView", {
     var divider =  tabris.create("Composite", {
       background: "#d3d3d3"
     }).appendTo(cell);
-    var imageView = tabris.create("ImageView", {
+    var brandImage = tabris.create("ImageView", {
       left: MARGIN, top: 6, width: 70, height: 70,
       scaleMode: "fill"
     }).appendTo(cell);
-    var nameView = tabris.create("TextView", {
+    var customerName = tabris.create("TextView", {
       maxLines: 2,
       font: "16px",
       markupEnabled: true
     }).appendTo(cell);
-    var authorView = tabris.create("TextView", {
+    var deviceStatus = tabris.create("TextView", {
       textColor: "#234"
     }).appendTo(cell);
-    var commentsView = tabris.create("TextView", {
+    var dateOrdered = tabris.create("TextView", {
       alignment: "right",
       textColor: "green"
     }).appendTo(cell);
     cell.on("change:item", function(widget, item) {
-      imageView.set("image", "images/" + item.device.brand.toLowerCase()+ ".png");
-      nameView.set("text", "<strong>" + item.customer.name + "</strong>");
-      authorView.set("text", item.device.brand);
-      commentsView.set("text", item.status.status);
+      brandImage.set("image", "images/" + item.device.brand.toLowerCase()+ ".png");
+      customerName.set("text", "<strong>" + item.customer.name + "</strong>");
+      dateOrdered.set("text", item.device.brand);
+      deviceStatus.set("text", item.status.status);
     }).on("resize", function() {
       var cellWidth = cell.get("bounds").width;
       var textWidth = 200;
-      nameView.set({left: 104, top: 6, width: cellWidth - textWidth - MARGIN});
-      authorView.set({top: 54, left: 104, height: 20, width: textWidth});
+      customerName.set({left: 104, top: 6, width: cellWidth - 104});
+      deviceStatus.set({top: 54, left: 104, height: 20, width: cellWidth - 104 - MARGIN});
       divider.set({top: 81, left: 104, height: .5, width: cellWidth - 104});
-      commentsView.set({top: 54, left: cellWidth - textWidth - MARGIN, height: 20, width: textWidth});
+      dateOrdered.set({top: 20, left: cellWidth - textWidth - MARGIN, height: 20, width: textWidth});
     });
   }
 }).on("select", function(target, value) {
     console.log("selected", value.customer.name);
-}).appendTo(ordersListPage);
+}).appendTo(orderListContainer);
+
+
+function createToolBar(options) {
+  var page = options.page;
+  var active = "#017bff";
+  var inactive = "#8C8C8C";
+
+  console.log(options["dashboard"] ? active : inactive)
+  var state = {
+    dashboard: inactive,
+    oxford: inactive,
+    mercer: inactive,
+    edison: inactive
+  }
+
+  var iconContainerSize = window.screen.width/4;
+  var topMargin = options.container;
+
+
+  var toolBar = tabris.create("Composite", {
+    layoutData: {left: 0, top: topMargin, bottom: 0, right: 0},
+    background: "#F9F9F9"
+  }).appendTo(page);
+
+  tabris.create("Composite",{
+    background: "rgba(0, 0, 0, .2)",
+    layoutData: {left: 0, top: 0, bottom: 48.5,  right: 0},
+  }).appendTo(toolBar);
+
+  var dashboard = tabris.create("Composite",{
+    layoutData: {left: 0, top: 8, bottom: 0},
+    width: iconContainerSize,
+    highlightOnTouch: true
+  }).on("tap", function(){
+    dashboardPage.open();
+  }).appendTo(toolBar);
+
+  var dashboardIcon = tabris.create("ImageView", {
+    centerX: 0,
+    image: {src: "images/dashboard.png", scale: 3}
+  }).appendTo(dashboard);
+
+  var dashboardText = tabris.create("TextView", {
+    text: "DashBoard",
+    font: "10px",
+    layoutData: {bottom: 0},
+    centerX: 0,
+    textColor: options["dashboard"] ? active : inactive
+  }).appendTo(dashboard);
+
+  var oxford = tabris.create("Composite",{
+    layoutData: {left: [dashboard, 0], top: 8, bottom: 0},
+    width: iconContainerSize
+  }).appendTo(toolBar);
+
+  var oxfordIcon = tabris.create("ImageView", {
+    centerX: 0,
+    image: {src: "images/Oxford.png", scale: 3}
+  }).appendTo(oxford);
+
+  var oxfordText = tabris.create("TextView", {
+    text: "Oxford",
+    font: "10px",
+    layoutData: {bottom: 0},
+    centerX: 0,
+    textColor: options["oxford"] ? active : inactive
+  }).appendTo(oxford);
+
+  var edison = tabris.create("Composite",{
+    layoutData: {left: [oxford, 0], top: 8, bottom: 0},
+    width: iconContainerSize
+  }).appendTo(toolBar);
+
+  var edisonIcon = tabris.create("ImageView", {
+    centerX: 0,
+    image: {src: "images/Edison.png", scale: 3}
+  }).appendTo(edison);
+
+  var edisonText = tabris.create("TextView", {
+    text: "Edison",
+    font: "10px",
+    layoutData: {bottom: 0},
+    centerX: 0,
+    textColor: options["edison"] ? active : inactive
+  }).appendTo(edison);
+
+  var mercer = tabris.create("Composite",{
+    layoutData: {left: [edison, 0], top: 8, bottom: 0},
+    width: iconContainerSize
+  }).appendTo(toolBar);
+
+  var mercerIcon = tabris.create("ImageView", {
+    centerX: 0,
+    image: {src: "images/MercerActive.png", scale: 3}
+  }).appendTo(mercer);
+
+  var mercerText = tabris.create("TextView", {
+    text: "Mercer",
+    font: "10px",
+    layoutData: {bottom: 0},
+    centerX: 0,
+    textColor: options["mercer"] ? active : inactive
+  }).appendTo(mercer);
+
+  return toolBar;
+};
+
+createToolBar({page: ordersListPage, container: orderListContainer});
 
 var addToOrder =  tabris.create("Page", {
     title: "Add Order",
     topLevel: true
   });
 
-var scrollView = tabris.create("ScrollView", {
-  left: 0, right: 0, top: 0, bottom: 0
+createToolBar({page: addToOrder, container: newOrderContainer});
+
+var newOrderContainer = tabris.create("ScrollView", {
+  layoutData: {left: 0, right: 0, top: 0, bottom: 49},
 }).appendTo(addToOrder);
 
 tabris.create("TextView", {
   id: "customerNameLabel",
   alignment: "left",
   text: "Customer Name:"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextInput", {
   id: "customerNameInput",
   text: fake.createName(),
   message: "Customer Name"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "phoneNumberLabel",
   text: "Phone #:"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextInput", {
   id: "phoneNumberInput",
   text: fake.createNumber(),
   message: "Phone #",
   keyboard: "phone"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "devicePasswordLabel",
   text: "Device Password"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextInput", {
   id: "devicePasswordInput",
   message: "Device Password",
   keyboard: "numbersAndPunctuation"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "quotedPriceLabel",
   text: "Quoted Price"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextInput", {
   id: "quotedPriceInput",
   message: "Quoted Price",
   keyboard: "number"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "deviceIssuesLabel",
   text: "Describe Issues"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextInput", {
   id: "deviceIssuesInput",
   message: "Describe Issues"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "brandLabel",
   text: "Brand:"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("Picker", {
   id: "brandPicker",
   items: ["Select Brand", "Acer", "Apple", "Asus"]
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("TextView", {
   id: "hasChargerLabel",
   text: "With Charger:"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("RadioButton", {
   id: "withCharger",
   text: "YES"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("RadioButton", {
   id: "withOutCharger",
   text: "NO"
-}).appendTo(scrollView);
+}).appendTo(newOrderContainer);
 
 tabris.create("Button", {
   id: "sendButton",
   text: "Send Order",
-}).on("select", createSubmitStatusPage).appendTo(scrollView);
+}).on("select", createSubmitStatusPage).appendTo(newOrderContainer);
 
 
 addToOrder.apply({
@@ -284,7 +403,7 @@ function resetOrderForm() {
 }
 
 function validateInput(selector, type, value) {
-  var currentValue = scrollView.children(selector).get(type);
+  var currentValue = newOrderContainer.children(selector).get(type);
   if(currentValue === value){
     return false
   } else {
@@ -313,7 +432,7 @@ function isOrderValid() {
 }
 
 function hasChargerSelection() {
-  var check = scrollView.children("#withCharger").get("selection");
+  var check = newOrderContainer.children("#withCharger").get("selection");
   if (check){
     return "Yes";
   }
@@ -324,7 +443,7 @@ function hasChargerSelection() {
 function initialOrderData() {
   var data = {
     date: getDate(),
-    price: scrollView.children("#quotedPriceInput").get("text"),
+    price: newOrderContainer.children("#quotedPriceInput").get("text"),
     stores: [{id: 1, store_name: "Iselin"}]
   }
 
@@ -335,8 +454,8 @@ function addCustomerToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
         order_id: id,
-        name: scrollView.children("#customerNameInput").get("text"),
-        phone_number: scrollView.children("#phoneNumberInput").get("text")
+        name: newOrderContainer.children("#customerNameInput").get("text"),
+        phone_number: newOrderContainer.children("#phoneNumberInput").get("text")
   };
 
   callApi(customerUrl, data, progress);
@@ -346,10 +465,10 @@ function addDeviceToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
       order_id: id,
-      brand: scrollView.children("#brandPicker").get("selection"),
+      brand: newOrderContainer.children("#brandPicker").get("selection"),
       has_charger: hasChargerSelection(),
-      password: scrollView.children("#devicePasswordInput").get("text"),
-      device_issues: scrollView.children("#deviceIssuesInput").get("text")  
+      password: newOrderContainer.children("#devicePasswordInput").get("text"),
+      device_issues: newOrderContainer.children("#deviceIssuesInput").get("text")  
   };
 
   callApi(devicesUrl, data, progress);
@@ -380,6 +499,8 @@ function addStatusToOrder(orderId, progress) {
 
 tabris.create("PageSelector", {
   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
-}).appendTo(page);
+}).appendTo(dashboardPage);
 
-page.open();
+createToolBar({page: dashboardPage, container: dashboardContainer});
+
+dashboardPage.open();
