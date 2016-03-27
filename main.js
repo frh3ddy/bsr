@@ -161,7 +161,7 @@ var ordersCollectionList = tabris.create("CollectionView", {
     });
   }
 }).on("select", function(target, value) {
-    console.log("selected", value.customer.name);
+    createOrderPage(value);
 }).appendTo(orderListContainer);
 
 
@@ -169,15 +169,7 @@ function createToolBar(options) {
   var page = options.page;
   var active = "#017bff";
   var inactive = "#8C8C8C";
-
-  console.log(options["dashboard"] ? active : inactive)
-  var state = {
-    dashboard: inactive,
-    oxford: inactive,
-    mercer: inactive,
-    edison: inactive
-  }
-
+  
   var iconContainerSize = window.screen.width/4;
   var topMargin = options.container;
 
@@ -202,7 +194,7 @@ function createToolBar(options) {
 
   var dashboardIcon = tabris.create("ImageView", {
     centerX: 0,
-    image: {src: "images/dashboard.png", scale: 3}
+    image: {src: "images/" + (options["dashboard"] ? "dashboardActive.png" : "dashboard.png"), scale: 3}
   }).appendTo(dashboard);
 
   var dashboardText = tabris.create("TextView", {
@@ -220,7 +212,7 @@ function createToolBar(options) {
 
   var oxfordIcon = tabris.create("ImageView", {
     centerX: 0,
-    image: {src: "images/Oxford.png", scale: 3}
+    image: {src: "images/" + (options["oxford"] ? "oxfordActive.png" : "oxford.png"), scale: 3}
   }).appendTo(oxford);
 
   var oxfordText = tabris.create("TextView", {
@@ -238,7 +230,7 @@ function createToolBar(options) {
 
   var edisonIcon = tabris.create("ImageView", {
     centerX: 0,
-    image: {src: "images/Edison.png", scale: 3}
+    image: {src: "images/" + (options["edison"] ? "edisonActive.png" : "edison.png"), scale: 3}
   }).appendTo(edison);
 
   var edisonText = tabris.create("TextView", {
@@ -256,7 +248,7 @@ function createToolBar(options) {
 
   var mercerIcon = tabris.create("ImageView", {
     centerX: 0,
-    image: {src: "images/MercerActive.png", scale: 3}
+    image: {src: "images/" + (options["mercer"] ? "mercerActive.png" : "mercer.png"), scale: 3}
   }).appendTo(mercer);
 
   var mercerText = tabris.create("TextView", {
@@ -269,6 +261,55 @@ function createToolBar(options) {
 
   return toolBar;
 };
+
+function createOrderPage(order) {
+  var someData = []
+  var page = tabris.create("Page", {
+    title: "Order " + order.id
+  });
+
+  var orderInfoContainer = tabris.create("ScrollView", {
+    layoutData: {left: 0, right: 0, top: 0, bottom: 0},
+    background: "#fbfbfb"
+  }).appendTo(page);
+
+
+  var customerHeaderText = tabris.create("TextView", {
+    text: "<big>CUSTOMER INFORMATION</big>",
+    layoutData: {left: 10, top: 20},
+    markupEnabled: true
+  }).appendTo(orderInfoContainer);
+
+  var customerInfoSection = tabris.create("Composite", {
+    background: "#fff",
+    layoutData: {top: [customerHeaderText, 5], left: 0, right: 0}
+  }).appendTo(orderInfoContainer);
+
+  var customerNameIcon = tabris.create("ImageView",{
+    image: {src: "images/mercerActive.png", scale: 3}
+  });
+
+
+  var customerNameText = tabris.create("TextView", {
+    text: order.customer.name,
+    font: "16px",
+    layoutData: {top: 12, left: 50, right: 0}
+  }).appendTo(customerInfoSection);
+
+  var divider = tabris.create("Composite", {
+    layoutData: {top: [customerNameText, 12], left: 50, right: 0},
+    height: 1,
+    background: "#333"
+  }).appendTo(customerInfoSection);
+
+  var customerPhoneText = tabris.create("TextView", {
+    font: "16px",
+    text: order.customer.phone_number,
+    layoutData: {top: [customerNameText, 20], left: 50, right: 0}
+  }).appendTo(customerInfoSection);
+
+  page.open()
+}
 
 createToolBar({page: ordersListPage, container: orderListContainer});
 
@@ -501,6 +542,6 @@ tabris.create("PageSelector", {
   layoutData: {left: 0, top: 15, right: 0, bottom: 0}
 }).appendTo(dashboardPage);
 
-createToolBar({page: dashboardPage, container: dashboardContainer});
+createToolBar({page: dashboardPage, container: dashboardContainer, dashboard: true});
 
 dashboardPage.open();
