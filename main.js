@@ -4,6 +4,7 @@ var btoa = require("./btoa");
 var getDate = require("./getDate");
 var fake = require("./fake");
 var someData =  require("./data")
+var singleOrderPage = require("./single_order")
 
 var MARGIN = 12;
 var loading;
@@ -35,7 +36,7 @@ function callApi(url, data, progress) {
         progress.set("selection", currentSelection + 100)
 
         if(progress.get("selection") > 400){
-          resetOrderForm(); //Reset form only after the last promise resolves 
+          resetOrderForm(); //Reset form only after the last promise resolves
         }
       }
   }).catch(function (err) {
@@ -77,8 +78,6 @@ function createSubmitStatusPage(){
 
     //Need to create the initial data to optain an order id
     var data = initialOrderData();
-
-      
 
     fetch(ordersUrl, {
         method: "POST",
@@ -161,7 +160,7 @@ var ordersCollectionList = tabris.create("CollectionView", {
     });
   }
 }).on("select", function(target, value) {
-    createOrderPage(value);
+    singleOrderPage(value);
 }).appendTo(orderListContainer);
 
 
@@ -169,7 +168,7 @@ function createToolBar(options) {
   var page = options.page;
   var active = "#017bff";
   var inactive = "#8C8C8C";
-  
+
   var iconContainerSize = window.screen.width/4;
   var topMargin = options.container;
 
@@ -261,55 +260,6 @@ function createToolBar(options) {
 
   return toolBar;
 };
-
-function createOrderPage(order) {
-  var someData = []
-  var page = tabris.create("Page", {
-    title: "Order " + order.id
-  });
-
-  var orderInfoContainer = tabris.create("ScrollView", {
-    layoutData: {left: 0, right: 0, top: 0, bottom: 0},
-    background: "#fbfbfb"
-  }).appendTo(page);
-
-
-  var customerHeaderText = tabris.create("TextView", {
-    text: "<big>CUSTOMER INFORMATION</big>",
-    layoutData: {left: 10, top: 20},
-    markupEnabled: true
-  }).appendTo(orderInfoContainer);
-
-  var customerInfoSection = tabris.create("Composite", {
-    background: "#fff",
-    layoutData: {top: [customerHeaderText, 5], left: 0, right: 0}
-  }).appendTo(orderInfoContainer);
-
-  var customerNameIcon = tabris.create("ImageView",{
-    image: {src: "images/mercerActive.png", scale: 3}
-  });
-
-
-  var customerNameText = tabris.create("TextView", {
-    text: order.customer.name,
-    font: "16px",
-    layoutData: {top: 12, left: 50, right: 0}
-  }).appendTo(customerInfoSection);
-
-  var divider = tabris.create("Composite", {
-    layoutData: {top: [customerNameText, 12], left: 50, right: 0},
-    height: 1,
-    background: "#333"
-  }).appendTo(customerInfoSection);
-
-  var customerPhoneText = tabris.create("TextView", {
-    font: "16px",
-    text: order.customer.phone_number,
-    layoutData: {top: [customerNameText, 20], left: 50, right: 0}
-  }).appendTo(customerInfoSection);
-
-  page.open()
-}
 
 createToolBar({page: ordersListPage, container: orderListContainer});
 
@@ -509,7 +459,7 @@ function addDeviceToOrder(orderId, progress) {
       brand: newOrderContainer.children("#brandPicker").get("selection"),
       has_charger: hasChargerSelection(),
       password: newOrderContainer.children("#devicePasswordInput").get("text"),
-      device_issues: newOrderContainer.children("#deviceIssuesInput").get("text")  
+      device_issues: newOrderContainer.children("#deviceIssuesInput").get("text")
   };
 
   callApi(devicesUrl, data, progress);
@@ -519,8 +469,8 @@ function addStatusToOrder(orderId, progress) {
   var id = [{id: orderId}];
   var data = {
       order_id: id,
-      // initial order status, not need to be dynamic. 
-      status: "Order Taken", 
+      // initial order status, not need to be dynamic.
+      status: "Order Taken",
       date: getDate(),
   };
 
