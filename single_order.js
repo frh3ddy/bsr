@@ -2,8 +2,7 @@ function orderPage(order) {
   var MARGINLEFT = 10
 
 var page = tabris.create("Page", {
-  title: "Order " + order.id,
-  topLevel: true
+  title: "Order " + order.id
 });
 
 var orderInfoContainer = tabris.create("ScrollView", {
