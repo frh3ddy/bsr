@@ -3,8 +3,6 @@
   "description": "bsr!",
   "main": "main.js",
   "dependencies": {
-    "promise": "^6.1.0",
-    "whatwg-fetch": "^0.7.0",
-    "tabris": "1.6.0"
+    "tabris": "^1.7.0"
   }
 }

@@ -1,18 +1,15 @@
 var someData =  require("./data");
-var singleOrderPage = require("./single_order")
+var singleOrderPage = require("./single_order");
+var toolBar = require("./toolBar");
 
 var MARGIN = 12;
 var loading;
 
-var page = function (){
+module.exports = function () {
   var page = tabris.create("Page", {
     title: "Orders",
     topLevel: true
   });
-  return page
-};
-
-function init(page) {
   var orderListContainer = tabris.create("Composite", {
     id: "container",
     layoutData: {left: 0, top: 0, bottom: 49, right: 0}
@@ -60,10 +57,5 @@ function init(page) {
       singleOrderPage(value);
   }).appendTo(orderListContainer);
 
-  return orderListContainer
-}
-
-module.exports = {
-  page: page,
-  container: init
+  toolBar({page: page, container: orderListContainer});
 }
