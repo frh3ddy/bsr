@@ -3,14 +3,9 @@ var key = btoa('key-1:wqWw2pRzOIMqlAV7gCRP');
 
 var rootAPI = require("./rootAPI");
 var getDate = require("./getDate");
-var toolBar = require("./toolBar");
 var fake = require("./fake")
 
-module.exports = function () {
-  var page =  tabris.create("Page", {
-      title: "Add Order",
-      topLevel: true
-    });
+module.exports = function (page) {
 
   var container = tabris.create("ScrollView", {
     layoutData: {left: 0, right: 0, top: 0, bottom: 49},
@@ -122,10 +117,10 @@ module.exports = function () {
     "#sendButton": {layoutData: {left: "20%", top: "#withOutCharger 25" , right: "20%"}}
   });
 
-  toolBar({
-    page: page,
-    container: container
-  });
+  // toolBar({
+  //   page: page,
+  //   container: container
+  // });
 
   function resetOrderForm() {
     page.apply({

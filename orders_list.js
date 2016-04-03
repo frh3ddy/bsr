@@ -1,21 +1,10 @@
 var someData =  require("./data");
-var singleOrderPage = require("./single_order");
-var toolBar = require("./toolBar");
-
+var singleOrder = require("./single_order");
 var MARGIN = 12;
 var loading;
 
-module.exports = function () {
-  var page = tabris.create("Page", {
-    title: "Orders",
-    topLevel: true
-  });
-  var orderListContainer = tabris.create("Composite", {
-    id: "container",
-    layoutData: {left: 0, top: 0, bottom: 49, right: 0}
-  }).appendTo(page);
-
-  var ordersCollectionList = tabris.create("CollectionView", {
+module.exports = function (page) {
+  tabris.create("CollectionView", {
     layoutData: {left: 0, top: 0, right: 0, bottom: 0},
     items: someData,
     itemHeight: 82,
@@ -54,8 +43,6 @@ module.exports = function () {
       });
     }
   }).on("select", function(target, value) {
-      singleOrderPage(value);
-  }).appendTo(orderListContainer);
-
-  toolBar({page: page, container: orderListContainer});
+      singleOrder(value);
+  }).appendTo(page);
 }
