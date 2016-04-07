@@ -1,3 +1,5 @@
+var MARGINLEFT = 10;
+
 function createEditableGroup(props) {
   var container = tabris.create("Composite", {
     layoutData: {top: ["prev()", 0], left: 0, right: 0},

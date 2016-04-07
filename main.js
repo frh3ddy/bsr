@@ -31,6 +31,5 @@ createTab("Mercer", "images/Mercer.png");
 page.open();
 
 tabFolder.on("change:selection", function(widget, tab) {
-  page.set("title", tab.get("title"))
-  // console.log(tab.get("title"));
+  page.set("title", tab.get("title"));
 });

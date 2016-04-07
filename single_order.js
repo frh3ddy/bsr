@@ -1,8 +1,7 @@
 var add = require('./single_order_helpers');
+var MARGINLEFT = 10;
 
 function orderPage(order) {
-  var MARGINLEFT = 10
-
   var page = tabris.create("Page", {
     title: "Order " + order.id
   });
