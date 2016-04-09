@@ -61,6 +61,19 @@ module.exports = function () {
       })
 
       if(credentials.length){
+        var headerContainer = tabris.ui.find("#Login");
+        var userInfo = tabris.ui.find("#user-info");
+
+        headerContainer.animate({
+          transform: {
+            translationX: window.screen.width - 109
+          }
+        }, {
+          duration: 100,
+          easing: "ease-out"
+        });
+
+        userInfo.set('opacity', 1)
         page.close();
       }
     }).catch(function (err) {

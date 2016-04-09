@@ -14,6 +14,7 @@ var tabFolder = new tabris.TabFolder({
 
 var createTab = function(title, image, content) {
   var tab = new tabris.Tab({
+    id: title,
     title: title, // converted to upper-case on Android
     image: {src: image, scale: 3}
   }).appendTo(tabFolder);

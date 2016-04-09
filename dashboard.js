@@ -13,10 +13,54 @@ function initDashboard(tab) {
     width: 93
   }).appendTo(page);
 
-
-  var headerContainer = new tabris.Composite({
+  var userContainer = new tabris.Composite({
+    id: 'user-info',
+    opacity: 0,
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
+  }).appendTo(page);
+
+  new tabris.TextView({
+    text: 'Fredy Mendez',
+    alignment: 'center',
+    layoutData: {top: 8, left: 25, right: 25},
+    font: '16px'
+  }).appendTo(userContainer);
+
+  new tabris.TextView({
+    text: 'Location: Edison',
+    alignment: 'center',
+    layoutData: {top: ["prev()", 8], left:25, right: 25},
+    font: '16px'
+  }).appendTo(userContainer);
+
+  new tabris.Button({
+    text: "LOGOUT",
+    font: '12px',
+    layoutData: {top: ['prev()', 8], bottom: 0, left: 25, right: 25}
+  }).on('select', function() {
+    this.parent().animate({
+      opacity: 0
+    }, {
+      duration: 100,
+      easing: "ease-out"
+    });
+    var headerContainer = tabris.ui.find("#Login");
+    headerContainer.animate({
+      transform: {
+        translationX: 0
+      }
+    }, {
+      duration: 200,
+      easing: "ease-out"
+    });
+  }).appendTo(userContainer);
+
+  var headerContainer = new tabris.Composite({
+    id: 'Login',
+    layoutData: {left: 109, right: 0, top: 8},
+    height: 93,
+    opacity: 1
   }).appendTo(page);
 
   new tabris.TextView({
@@ -25,7 +69,9 @@ function initDashboard(tab) {
     background: "#282C37",
     layoutData: {left: "10%", right: "10%", top: 20, bottom: 20},
     alignment: "center"
-  }).on('tap', login).appendTo(headerContainer);
+  }).on('tap', function(){
+    login();
+  }).appendTo(headerContainer);
 
   var orderContainer = new tabris.Composite({
     layoutData: {top: ['prev()', 30], left: 0, right: 0},
