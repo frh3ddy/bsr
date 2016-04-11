@@ -191,6 +191,8 @@ function initDashboard(tab) {
     font: '17px',
     textColor: '#fff'
   }).appendTo(deliveryContainerItemSecond);
+
+  // return page; future refactor, return page to be appended
 }
 
 module.exports = initDashboard;

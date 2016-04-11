@@ -9,17 +9,18 @@ var page = new tabris.Page({
 
 var tabFolder = new tabris.TabFolder({
   layoutData: {left: 0, top: 0, right: 0, bottom: 0},
-  paging: false // enables swiping. To still be able to open the developer console in iOS, swipe from the bottom right.
+  paging: false
 }).appendTo(page);
 
 var createTab = function(title, image, content) {
   var tab = new tabris.Tab({
     id: title,
-    title: title, // converted to upper-case on Android
+    title: title,
     image: {src: image, scale: 3}
   }).appendTo(tabFolder);
 
   if(content){
+    //tab.append(content) future refactor
     content(tab);
   }
 };

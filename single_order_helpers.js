@@ -19,9 +19,9 @@ function createEditableGroup(props) {
   }).appendTo(container);
 
   tabris.create("TextView", {
+    text: props.bodyText,
     font: "16px",
     textColor: "#252c41",
-    text: props.bodyText,
     layoutData: {top: ["prev()", 6], left: MARGINLEFT, right: 40}
   }).appendTo(container);
 
@@ -39,6 +39,8 @@ function createLine(props) {
   var margin;
 
   if(props.alignment === "top"){
+    //alignment is require to be specific because is using a fraction
+    //and there will be a gap depending on its position.
     alignment = {top: 0, bottom: .5, left: 0, right: 0};
     margin = 0;
   } else {
