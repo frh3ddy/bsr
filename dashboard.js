@@ -1,5 +1,9 @@
 var rootAPI = require("./rootAPI");
 var login = require('./login');
+var isLogged = localStorage.getItem('userInfo');
+if(isLogged){
+    var user = JSON.parse(isLogged);
+}
 
 function initDashboard(tab) {
   var page = new tabris.ScrollView({
@@ -15,13 +19,14 @@ function initDashboard(tab) {
 
   var userContainer = new tabris.Composite({
     id: 'user-info',
-    opacity: 0,
+    opacity: isLogged ? 1 : 0,
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
   }).appendTo(page);
 
   new tabris.TextView({
-    text: 'Fredy Mendez',
+    id: 'user-name',
+    text: isLogged ? ('Tech: ' + user.name) : '',
     alignment: 'center',
     layoutData: {top: 8, left: 25, right: 25},
     font: '16px'
@@ -49,19 +54,32 @@ function initDashboard(tab) {
     headerContainer.animate({
       transform: {
         translationX: 0
-      }
+      },
+      opacity: 1
     }, {
       duration: 200,
       easing: "ease-out"
     });
+    localStorage.removeItem('userInfo');
   }).appendTo(userContainer);
 
   var headerContainer = new tabris.Composite({
     id: 'Login',
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
-    opacity: 1
+    opacity: isLogged ? 0 : 1
   }).appendTo(page);
+
+  if(isLogged){
+    headerContainer.animate({
+      transform: {
+        translationX: window.screen.width - 109
+      }
+    }, {
+      duration: 100,
+      easing: "ease-out"
+    });
+  }
 
   new tabris.TextView({
     text: "LOGIN",

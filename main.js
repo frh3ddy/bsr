@@ -20,7 +20,7 @@ var createTab = function(title, image, content) {
   }).appendTo(tabFolder);
 
   if(content){
-    //tab.append(content) future refactor
+    //the content need an argument to be the container
     content(tab);
   }
 };

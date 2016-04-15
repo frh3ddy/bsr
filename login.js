@@ -63,6 +63,7 @@ module.exports = function () {
       if(credentials.length){
         var headerContainer = tabris.ui.find("#Login");
         var userInfo = tabris.ui.find("#user-info");
+        var userName = tabris.ui.find("#user-name");
 
         headerContainer.animate({
           transform: {
@@ -74,6 +75,8 @@ module.exports = function () {
         });
 
         userInfo.set('opacity', 1)
+        userName.set('text', 'Tech: ' + credentials[0].name)
+        localStorage.setItem('userInfo', JSON.stringify(credentials[0]));
         page.close();
       }
     }).catch(function (err) {

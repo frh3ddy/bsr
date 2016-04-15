@@ -1,7 +1,6 @@
 var someData =  require("./data");
 var singleOrder = require("./single_order");
 var MARGIN = 12;
-var loading;
 
 module.exports = function (page) {
   tabris.create("CollectionView", {
