@@ -1,6 +1,16 @@
 var ordersList = require("./orders_list");
 var orderForm = require("./order_form");
 var dashboard = require("./dashboard.js");
+var Syncano = require('./syncano');
+
+console.log(Object.keys(Syncano));
+var low = require('./lowdb')
+
+var db = low()
+var db = low('db', { storage: low.localStorage })
+db('users').push({ name: 'typicode' })
+
+console.log(db('users').find({ name: 'typicode' }))
 
 var page = new tabris.Page({
   title: "Dashboard",
