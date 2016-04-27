@@ -4,6 +4,30 @@ var key = btoa('key-1:wqWw2pRzOIMqlAV7gCRP');
 var rootAPI = require("./rootAPI");
 var getDate = require("./getDate");
 var fake = require("./fake")
+var Syncano = require('./syncano');
+var low = require('./lowdb')
+var db = low('db', { storage: low.localStorage })
+
+var USER_KEY = null;
+
+if(db.object.user.length){
+  USER_KEY = db.object.user[0].user_key;
+}
+
+var connection = Syncano({ userKey: 'USER_KEY'});
+
+var DataObject = connection.DataObject;
+
+// var book = {
+//   name: "test name",
+//   phone_number: "123456789",
+//   instanceName: "bsrapp",
+//   className: "customer"
+// };
+//
+// DataObject.please().create(book).then(function(book) {
+//   console.log("book", book);
+// });
 
 module.exports = function (page) {
 

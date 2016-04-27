@@ -2,15 +2,24 @@ var ordersList = require("./orders_list");
 var orderForm = require("./order_form");
 var dashboard = require("./dashboard.js");
 var Syncano = require('./syncano');
+var connection = Syncano({ apiKey: '5d8c314a9d3642d75466d780c433ef563a8cc98c'});
+var DataEndpoint = connection.DataEndpoint;
 
-console.log(Object.keys(Syncano));
+DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
+.then(function(dataObjects) {
+  dataObjects.objects.forEach(function (el) {
+    console.log(el.id);
+  });
+})
+.catch(function(error) {
+  console.log(error)
+});
 var low = require('./lowdb')
 
-var db = low()
 var db = low('db', { storage: low.localStorage })
-db('users').push({ name: 'typicode' })
+// db('users').push({ name: 'typicode' })
 
-console.log(db('users').find({ name: 'typicode' }))
+// console.log(db('user').find({ name: 'typicode' }))
 
 var page = new tabris.Page({
   title: "Dashboard",

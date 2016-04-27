@@ -1,9 +1,10 @@
 var rootAPI = require("./rootAPI");
 var login = require('./login');
-var isLogged = localStorage.getItem('userInfo');
-if(isLogged){
-    var user = JSON.parse(isLogged);
-}
+var low = require('./lowdb');
+var db = low('db', { storage: low.localStorage })
+var user = db.object.user[0];
+
+var isLogged = db.object.user.length;
 
 function initDashboard(tab) {
   var page = new tabris.ScrollView({
@@ -26,7 +27,7 @@ function initDashboard(tab) {
 
   new tabris.TextView({
     id: 'user-name',
-    text: isLogged ? ('Tech: ' + user.name) : '',
+    text: isLogged ? ('Tech: ' + user.username) : '',
     alignment: 'center',
     layoutData: {top: 8, left: 25, right: 25},
     font: '16px'
@@ -60,7 +61,7 @@ function initDashboard(tab) {
       duration: 200,
       easing: "ease-out"
     });
-    localStorage.removeItem('userInfo');
+    db('user').remove();
   }).appendTo(userContainer);
 
   var headerContainer = new tabris.Composite({
@@ -76,7 +77,7 @@ function initDashboard(tab) {
         translationX: window.screen.width - 109
       }
     }, {
-      duration: 100,
+      duration: 0,
       easing: "ease-out"
     });
   }
