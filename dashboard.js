@@ -1,11 +1,10 @@
-var rootAPI = require("./rootAPI");
+var orderForm = require('./order_form')
 var login = require('./login');
 var low = require('./lowdb');
 var db = low('db', { storage: low.localStorage })
 var user = db.object.user[0];
 
 var isLogged = db.object.user.length;
-
 function initDashboard(tab) {
   var page = new tabris.ScrollView({
     left: 0, right: 0, top: 0, bottom: 0,
@@ -94,6 +93,8 @@ function initDashboard(tab) {
 
   var orderContainer = new tabris.Composite({
     layoutData: {top: ['prev()', 30], left: 0, right: 0},
+  }).on('tap', function(){
+    orderForm();
   }).appendTo(page);
 
   var orderContainerItemFirst = new tabris.Composite({

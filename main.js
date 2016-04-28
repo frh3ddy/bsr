@@ -8,7 +8,6 @@ var DataEndpoint = connection.DataEndpoint;
 DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
 .then(function(dataObjects) {
   dataObjects.objects.forEach(function (el) {
-    console.log(el.id);
   });
 })
 .catch(function(error) {

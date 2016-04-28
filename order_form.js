@@ -8,28 +8,21 @@ var Syncano = require('./syncano');
 var low = require('./lowdb')
 var db = low('db', { storage: low.localStorage })
 
-var USER_KEY = null;
 
+var isLogged = false;
+var USER_KEY = null;
 if(db.object.user.length){
   USER_KEY = db.object.user[0].user_key;
+  isLogged = true
 }
 
-var connection = Syncano({ userKey: 'USER_KEY'});
-
+var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
 var DataObject = connection.DataObject;
 
-// var book = {
-//   name: "test name",
-//   phone_number: "123456789",
-//   instanceName: "bsrapp",
-//   className: "customer"
-// };
-//
-// DataObject.please().create(book).then(function(book) {
-//   console.log("book", book);
-// });
-
-module.exports = function (page) {
+module.exports = function () {
+  var page = new tabris.Page({
+    title: "Dashboard"
+  });
 
   var container = tabris.create("ScrollView", {
     layoutData: {left: 0, right: 0, top: 0, bottom: 49},
@@ -294,33 +287,114 @@ module.exports = function (page) {
         }
       }).appendTo(page);
 
-      setTimeout(function(){
-        progressBar.set("selection", 100)
-      }, 500);
+      // setTimeout(function(){
+      //   progressBar.set("selection", 100)
+      // }, 500);
 
       //Need to create the initial data to optain an order id
-      var data = initialOrderData();
+      // var data = initialOrderData();
 
-      fetch(rootAPI.orders, {
-          method: "POST",
-          headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json',
-              'Authorization': "Basic " + key
-          },
-          body: JSON.stringify(data)
-      }).then(function (response) {
-          console.log(response.status);
-          progressBar.set("selection", 200);
-          return response.json();
-      }).then(function(json){
-       //Once the order has been created, now is time to add the rest of the order data
-        addCustomerToOrder(json.id, progressBar);
-        addDeviceToOrder(json.id, progressBar);
-        addStatusToOrder(json.id, progressBar);
-      }).catch(function (err) {
-          console.log(err);
+      if(db.object.tempOderData === undefined) {
+        db('tempOderData').push({
+          id: null,
+          order: null,
+          tech: null,
+          customer: null,
+          device: null,
+        });
+      } else {
+        db('tempOderData').remove()
+
+        db('tempOderData').push({
+          id: null,
+          order: null,
+          tech: isLogged ? db.object.user[0].id : null,
+          customer: null,
+          device: null,
+        });
+      }
+
+      var order = {
+        quoted_price: 99,
+        instanceName: "bsrapp",
+        className: "customer"
+      };
+
+      var customer = {
+        name: "test customer",
+        phone_number: "123456789",
+        instanceName: "bsrapp",
+        className: "customer"
+      };
+
+      var device = {
+        type: "laptop",
+        brand: "apple",
+        password: "customer",
+        charger: true,
+        instanceName: "bsrapp",
+        className: "customer"
+      };
+
+      DataObject.please().create(customer).then(function(customer) {
+        db('tempOderData')
+          .chain()
+          .find({ customer: null })
+          .assign({ customer: customer.id})
+          .value()
+          progressBar.set("selection", 100)
+      }).catch(function(error){
+        console.log(error);
       });
+
+      DataObject.please().create(device).then(function(device) {
+        db('tempOderData')
+          .chain()
+          .find({ device: null })
+          .assign({ device: device.id})
+          .value()
+          progressBar.set("selection", 100)
+      }).catch(function(error){
+        console.log(error);
+      });
+
+      DataObject.please().create(order).then(function(order) {
+        db('tempOderData')
+          .chain()
+          .find({ order: null })
+          .assign({ order: order.id})
+          .value()
+          progressBar.set("selection", 200)
+      }).catch(function(error){
+        console.log(error);
+      });
+
+      setTimeout(function(){
+        console.log(db.object.tempOderData[0])
+      }, 500)
+
+      // fetch(rootAPI.orders, {
+      //     method: "POST",
+      //     headers: {
+      //         'Accept': 'application/json',
+      //         'Content-Type': 'application/json',
+      //         'Authorization': "Basic " + key
+      //     },
+      //     body: JSON.stringify(data)
+      // }).then(function (response) {
+      //     console.log(response.status);
+      //     progressBar.set("selection", 200);
+      //     return response.json();
+      // }).then(function(json){
+      //  //Once the order has been created, now is time to add the rest of the order data
+      //   addCustomerToOrder(json.id, progressBar);
+      //   addDeviceToOrder(json.id, progressBar);
+      //   addStatusToOrder(json.id, progressBar);
+      // }).catch(function (err) {
+      //     console.log(err);
+      // });
     };
   }
+
+  page.open();
 }
