@@ -8,17 +8,6 @@ var Syncano = require('./syncano');
 var low = require('./lowdb')
 var db = low('db', { storage: low.localStorage })
 
-
-var isLogged = false;
-var USER_KEY = null;
-if(db.object.user.length){
-  USER_KEY = db.object.user[0].user_key;
-  isLogged = true
-}
-
-var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
-var DataObject = connection.DataObject;
-
 module.exports = function () {
   var page = new tabris.Page({
     title: "Dashboard"
@@ -261,7 +250,16 @@ module.exports = function () {
   }
 
   function createSubmitStatusPage(){
-    if(isOrderValid()){
+    var isLogged = false;
+
+    if(db('loggedUser').find()){
+      var USER_KEY = db('loggedUser').first().user_key;
+      var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
+      var DataObject = connection.DataObject;
+      isLogged = true
+    }
+
+    if(isOrderValid() && isLogged){
       var page = tabris.create("Page", {
         title: "sending",
         topLevel: true,
@@ -277,10 +275,11 @@ module.exports = function () {
 
       var progressBar = tabris.create("ProgressBar",{
         layoutData: {left: 15, right: 15, centerY: 0},
-        maximum: 500,
+        maximum: 300,
         selection: 0
       }).on("change:selection", function(progressBar, selection) {
-        if(selection === 500){
+        if(selection === 300){
+          isLogged = false
           setTimeout(function(){
             page.close();
           }, 500);
@@ -298,7 +297,7 @@ module.exports = function () {
         db('tempOderData').push({
           id: null,
           order: null,
-          tech: null,
+          tech: db('loggedUser').first().id,
           customer: null,
           device: null,
         });
@@ -308,7 +307,7 @@ module.exports = function () {
         db('tempOderData').push({
           id: null,
           order: null,
-          tech: isLogged ? db.object.user[0].id : null,
+          tech: db('loggedUser').first().id,
           customer: null,
           device: null,
         });
@@ -342,7 +341,8 @@ module.exports = function () {
           .find({ customer: null })
           .assign({ customer: customer.id})
           .value()
-          progressBar.set("selection", 100)
+          var currentSelection = progressBar.get("selection");
+          progressBar.set("selection", currentSelection + 100)
       }).catch(function(error){
         console.log(error);
       });
@@ -353,7 +353,8 @@ module.exports = function () {
           .find({ device: null })
           .assign({ device: device.id})
           .value()
-          progressBar.set("selection", 100)
+          var currentSelection = progressBar.get("selection");
+          progressBar.set("selection", currentSelection + 100)
       }).catch(function(error){
         console.log(error);
       });
@@ -364,7 +365,8 @@ module.exports = function () {
           .find({ order: null })
           .assign({ order: order.id})
           .value()
-          progressBar.set("selection", 200)
+          var currentSelection = progressBar.get("selection");
+          progressBar.set("selection", currentSelection + 100)
       }).catch(function(error){
         console.log(error);
       });

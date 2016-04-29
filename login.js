@@ -1,7 +1,7 @@
+var orderForm = require('./order_form')
 var Syncano = require('./syncano');
 var low = require('./lowdb')
 var db = low('db', { storage: low.localStorage })
-
 var connection = Syncano({apiKey: "bae21c7ba933f99dcc2782b27f3676ffdb82b539"});
 
 module.exports = function () {
@@ -40,23 +40,30 @@ module.exports = function () {
     right: 0,
     top: ['prev()', 15],
   }).on('select', function (){
+
     var input = {
       username: user.get('text'),
       password: password.get('text')
     }
+
     connection.User.please().login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
       .then(function(response) {
-        //need to check if there is already an entry on the user array
-        //if there is one. delete it
-        if(db.object.user.length > 0){
-          db('user').remove()
+        if(localStorage.getItem('userInfo')){
+          localStorage.removeItem('userInfo')
         }
 
-        db('user').push(response)
+        localStorage.setItem('userInfo', JSON.stringify(input));
+
+        db('loggedUser').push(response);
 
         var headerContainer = tabris.ui.find("#Login");
         var userInfo = tabris.ui.find("#user-info");
         var userName = tabris.ui.find("#user-name");
+        var orderContainer = tabris.ui.find('#orderContainer')
+
+        orderContainer.off().on('tap', function(){
+            orderForm();
+        })
 
         headerContainer.animate({
           transform: {
@@ -69,6 +76,7 @@ module.exports = function () {
 
         userInfo.set('opacity', 1)
         userName.set('text', 'Tech: ' + response.username)
+        // tabris.app.reload()
         page.close();
       })
       .catch(function(error) {

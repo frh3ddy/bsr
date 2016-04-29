@@ -1,10 +1,47 @@
 var orderForm = require('./order_form')
+var Syncano = require('./syncano');
 var login = require('./login');
 var low = require('./lowdb');
 var db = low('db', { storage: low.localStorage })
-var user = db.object.user[0];
+console.log(db('loggedUser').find());
 
-var isLogged = db.object.user.length;
+if(db('loggedUser').find()){
+  db('loggedUser').remove()
+}
+
+var connection = Syncano({apiKey: "bae21c7ba933f99dcc2782b27f3676ffdb82b539"});
+
+if(localStorage.getItem('userInfo')){
+  var input = JSON.parse(localStorage.getItem('userInfo'));
+
+  connection.User.please().login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
+    .then(function(response) {
+      db('loggedUser').push(response)
+
+      var headerContainer = tabris.ui.find("#Login");
+      var userInfo = tabris.ui.find("#user-info");
+      var userName = tabris.ui.find("#user-name");
+
+      headerContainer.animate({
+        transform: {
+          translationX: window.screen.width - 109
+        }
+      }, {
+        duration: 100,
+        easing: "ease-out"
+      });
+      userInfo.set('opacity', 1)
+      userName.set('text', 'Tech: ' + response.username)
+
+      tabris.ui.find('#orderContainer').off().on('tap', function() {
+        orderForm()
+      })
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+}
+
 function initDashboard(tab) {
   var page = new tabris.ScrollView({
     left: 0, right: 0, top: 0, bottom: 0,
@@ -19,14 +56,14 @@ function initDashboard(tab) {
 
   var userContainer = new tabris.Composite({
     id: 'user-info',
-    opacity: isLogged ? 1 : 0,
+    opacity: 0,
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
   }).appendTo(page);
 
   new tabris.TextView({
     id: 'user-name',
-    text: isLogged ? ('Tech: ' + user.username) : '',
+    text: '',
     alignment: 'center',
     layoutData: {top: 8, left: 25, right: 25},
     font: '16px'
@@ -60,26 +97,27 @@ function initDashboard(tab) {
       duration: 200,
       easing: "ease-out"
     });
-    db('user').remove();
+    localStorage.removeItem('userInfo');
+    delete db.object.loggedUser;
+    db.write()
+    tabris.ui.find('#orderContainer').off().on('tap', function() {
+      console.log('you need to be logged to place and order');
+    });
   }).appendTo(userContainer);
 
   var headerContainer = new tabris.Composite({
     id: 'Login',
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
-    opacity: isLogged ? 0 : 1
+    opacity: 0
   }).appendTo(page);
 
-  if(isLogged){
-    headerContainer.animate({
-      transform: {
-        translationX: window.screen.width - 109
-      }
-    }, {
-      duration: 0,
-      easing: "ease-out"
-    });
-  }
+  headerContainer.animate({
+    opacity: 1
+  }, {
+    duration: 1100,
+  });
+
 
   new tabris.TextView({
     text: "LOGIN",
@@ -92,9 +130,10 @@ function initDashboard(tab) {
   }).appendTo(headerContainer);
 
   var orderContainer = new tabris.Composite({
+    id: 'orderContainer',
     layoutData: {top: ['prev()', 30], left: 0, right: 0},
   }).on('tap', function(){
-    orderForm();
+    console.log('you need to be looged')
   }).appendTo(page);
 
   var orderContainerItemFirst = new tabris.Composite({
