@@ -1,19 +1,39 @@
-var btoa = require("./btoa");
-var key = btoa('key-1:wqWw2pRzOIMqlAV7gCRP');
 
-var rootAPI = require("./rootAPI");
-var getDate = require("./getDate");
 var fake = require("./fake")
 var Syncano = require('./syncano');
-var low = require('./lowdb')
-var db = low('db', { storage: low.localStorage })
+var db = require('./localStorage')
 
 module.exports = function () {
+  if(db.object.tempOderData === undefined) {
+    db('tempFormData').push({
+      name: '',
+      phone: '',
+      password: '',
+      price: '',
+      issues: '',
+      brand: '',
+      charger: false
+    });
+  } else {
+    db('tempFormData').remove()
+
+    db('tempFormData').push({
+      name: '',
+      phone: '',
+      password: '',
+      price: '',
+      issues: '',
+      brand: '',
+      charger: false
+    });
+  }
+
   var page = new tabris.Page({
-    title: "Dashboard"
+    title: "Order"
   });
 
   var container = tabris.create("ScrollView", {
+    id: '#formContainer',
     layoutData: {left: 0, right: 0, top: 0, bottom: 49},
   }).appendTo(page);
 
@@ -25,8 +45,20 @@ module.exports = function () {
 
   tabris.create("TextInput", {
     id: "customerNameInput",
-    text: fake.createName(),
+    text: '',
     message: "Customer Name"
+  }).on('focus', function() {
+    db('tempFormData')
+      .chain()
+      .find({ name: this.get('text') })
+      .assign({ name: ''})
+      .value()
+  }).on('blur', function() {
+    db('tempFormData')
+      .chain()
+      .find({ name: '' })
+      .assign({ name: this.get('text')})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -37,8 +69,19 @@ module.exports = function () {
   tabris.create("TextInput", {
     id: "phoneNumberInput",
     text: fake.createNumber(),
-    message: "Phone #",
     keyboard: "phone"
+  }).on('focus', function() {
+    db('tempFormData')
+      .chain()
+      .find({ phone: this.get('text') })
+      .assign({phone: ''})
+      .value()
+  }).on('blur', function() {
+    db('tempFormData')
+      .chain()
+      .find({ phone: '' })
+      .assign({ phone: this.get('text')})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -50,6 +93,18 @@ module.exports = function () {
     id: "devicePasswordInput",
     message: "Device Password",
     keyboard: "numbersAndPunctuation"
+  }).on('focus', function() {
+    db('tempFormData')
+      .chain()
+      .find({ password: this.get('text') })
+      .assign({ password: ''})
+      .value()
+  }).on('blur', function() {
+    db('tempFormData')
+      .chain()
+      .find({ password: '' })
+      .assign({ password: this.get('text')})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -61,6 +116,18 @@ module.exports = function () {
     id: "quotedPriceInput",
     message: "Quoted Price",
     keyboard: "number"
+  }).on('focus', function() {
+    db('tempFormData')
+      .chain()
+      .find({ price: this.get('text') })
+      .assign({ price: ''})
+      .value()
+  }).on('blur', function() {
+    db('tempFormData')
+      .chain()
+      .find({ price: '' })
+      .assign({ price: this.get('text')})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -71,6 +138,18 @@ module.exports = function () {
   tabris.create("TextInput", {
     id: "deviceIssuesInput",
     message: "Describe Issues"
+  }).on('focus', function() {
+    db('tempFormData')
+      .chain()
+      .find({ issues: this.get('text') })
+      .assign({ issues: ''})
+      .value()
+  }).on('blur', function() {
+    db('tempFormData')
+      .chain()
+      .find({ issues: '' })
+      .assign({ issues: this.get('text')})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -123,11 +202,6 @@ module.exports = function () {
     "#sendButton": {layoutData: {left: "20%", top: "#withOutCharger 25" , right: "20%"}}
   });
 
-  // toolBar({
-  //   page: page,
-  //   container: container
-  // });
-
   function resetOrderForm() {
     page.apply({
     "#customerNameInput": {text: ""},
@@ -170,86 +244,19 @@ module.exports = function () {
     return valid;
   }
 
-  function hasChargerSelection() {
-    var check = container.children("#withCharger").get("selection");
-    if (check){
-      return "Yes";
+  var orderData = function(){
+
+    var data = {
+      quoted_price: parseInt(container.children("#quotedPriceInput").get("text")),
+      instanceName: "bsrapp",
+      className: "order"
     }
 
-    return "No"
-  }
-
-  function initialOrderData() {
-    var data = {
-      date: getDate(),
-      price: container.children("#quotedPriceInput").get("text"),
-      stores: [{id: 1, store_name: "Iselin"}]
-    }
-
-    return data;
-  }
-
-  function addCustomerToOrder(orderId, progress) {
-    var id = [{id: orderId}];
-    var data = {
-          order_id: id,
-          name: container.children("#customerNameInput").get("text"),
-          phone_number: container.children("#phoneNumberInput").get("text")
-    };
-
-    callApi(rootAPI.customer, data, progress);
-  }
-
-  function addDeviceToOrder(orderId, progress) {
-    var id = [{id: orderId}];
-    var data = {
-        order_id: id,
-        brand: container.children("#brandPicker").get("selection"),
-        has_charger: hasChargerSelection(),
-        password: container.children("#devicePasswordInput").get("text"),
-        device_issues: container.children("#deviceIssuesInput").get("text")
-    };
-
-    callApi(rootAPI.device, data, progress);
-  }
-
-  function addStatusToOrder(orderId, progress) {
-    var id = [{id: orderId}];
-    var data = {
-        order_id: id,
-        // initial order status, not need to be dynamic.
-        status: "Order Taken",
-        date: getDate(),
-    };
-
-    callApi(rootAPI.status, data, progress);
-  }
-
-  function callApi(url, data, progress) {
-    fetch(url, {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': "Basic " + key
-        },
-        body: JSON.stringify(data)
-    }).then(function (response) {
-        console.log("Status:: " + response.status);
-        if(progress){
-          var currentSelection = progress.get("selection");
-          progress.set("selection", currentSelection + 100)
-
-          if(progress.get("selection") > 400){
-            resetOrderForm(); //Reset form only after the last promise resolves
-          }
-        }
-    }).catch(function (err) {
-        console.log(err);
-    });
+    return data
   }
 
   function createSubmitStatusPage(){
+    console.log(db('tempFormData').first().name)
     var isLogged = false;
 
     if(db('loggedUser').find()){
@@ -314,87 +321,64 @@ module.exports = function () {
       }
 
       var order = {
-        quoted_price: 99,
+        quoted_price: parseInt(db('tempFormData').first().price),
         instanceName: "bsrapp",
-        className: "customer"
-      };
+        className: "order"
+      }
 
       var customer = {
-        name: "test customer",
-        phone_number: "123456789",
+        name: db('tempFormData').first().name,
+        phone_number: db('tempFormData').first().phone,
         instanceName: "bsrapp",
         className: "customer"
       };
 
       var device = {
         type: "laptop",
-        brand: "apple",
-        password: "customer",
-        charger: true,
+        brand: container.children("#brandPicker").get("selection"),
+        password: db('tempFormData').first().password,
+        charger: container.children("#withCharger").get("selection"),
         instanceName: "bsrapp",
-        className: "customer"
+        className: "device"
       };
 
-      DataObject.please().create(customer).then(function(customer) {
-        db('tempOderData')
-          .chain()
-          .find({ customer: null })
-          .assign({ customer: customer.id})
-          .value()
-          var currentSelection = progressBar.get("selection");
-          progressBar.set("selection", currentSelection + 100)
-      }).catch(function(error){
-        console.log(error);
-      });
+      DataObject.please().create(order)
+        .then(function(order) {
+          db('tempOderData')
+            .chain()
+            .find({ id: null })
+            .assign({ id: order.id})
+            .value()
+            var currentSelection = progressBar.get("selection");
+            progressBar.set("selection", currentSelection + 100)
+        })
+        .then(function() {
+          return DataObject.please().create(device).then(function(device) {
+            db('tempOderData')
+              .chain()
+              .find({ device: null })
+              .assign({ device: device.id})
+              .value()
+              var currentSelection = progressBar.get("selection");
+              progressBar.set("selection", currentSelection + 100)
+          })
+        })
+        .then(function() {
+          return DataObject.please().create(customer).then(function(customer) {
+            db('tempOderData')
+              .chain()
+              .find({ customer: null })
+              .assign({ customer: customer.id})
+              .value()
+              var currentSelection = progressBar.get("selection");
+              progressBar.set("selection", currentSelection + 100)
+          })
+        }).then(function() {
+          console.log(db('tempOderData').first());
+        }).catch(function(error) {
+          console.log(error)
+        })
 
-      DataObject.please().create(device).then(function(device) {
-        db('tempOderData')
-          .chain()
-          .find({ device: null })
-          .assign({ device: device.id})
-          .value()
-          var currentSelection = progressBar.get("selection");
-          progressBar.set("selection", currentSelection + 100)
-      }).catch(function(error){
-        console.log(error);
-      });
-
-      DataObject.please().create(order).then(function(order) {
-        db('tempOderData')
-          .chain()
-          .find({ order: null })
-          .assign({ order: order.id})
-          .value()
-          var currentSelection = progressBar.get("selection");
-          progressBar.set("selection", currentSelection + 100)
-      }).catch(function(error){
-        console.log(error);
-      });
-
-      setTimeout(function(){
-        console.log(db.object.tempOderData[0])
-      }, 500)
-
-      // fetch(rootAPI.orders, {
-      //     method: "POST",
-      //     headers: {
-      //         'Accept': 'application/json',
-      //         'Content-Type': 'application/json',
-      //         'Authorization': "Basic " + key
-      //     },
-      //     body: JSON.stringify(data)
-      // }).then(function (response) {
-      //     console.log(response.status);
-      //     progressBar.set("selection", 200);
-      //     return response.json();
-      // }).then(function(json){
-      //  //Once the order has been created, now is time to add the rest of the order data
-      //   addCustomerToOrder(json.id, progressBar);
-      //   addDeviceToOrder(json.id, progressBar);
-      //   addStatusToOrder(json.id, progressBar);
-      // }).catch(function (err) {
-      //     console.log(err);
-      // });
     };
   }
 

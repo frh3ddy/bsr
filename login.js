@@ -1,7 +1,6 @@
 var orderForm = require('./order_form')
 var Syncano = require('./syncano');
-var low = require('./lowdb')
-var db = low('db', { storage: low.localStorage })
+var db = require('./localStorage')
 var connection = Syncano({apiKey: "bae21c7ba933f99dcc2782b27f3676ffdb82b539"});
 
 module.exports = function () {

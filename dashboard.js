@@ -1,9 +1,7 @@
 var orderForm = require('./order_form')
 var Syncano = require('./syncano');
 var login = require('./login');
-var low = require('./lowdb');
-var db = low('db', { storage: low.localStorage })
-console.log(db('loggedUser').find());
+var db = require('./localStorage')
 
 if(db('loggedUser').find()){
   db('loggedUser').remove()
