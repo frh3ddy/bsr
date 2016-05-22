@@ -234,13 +234,62 @@ module.exports = function () {
   }
 
   function modalWindow() {
-    var modal = new tabris.Composite({
-      layoutData: {left: 50, right: 50},
-      centerY: -50,
-      height: 200,
+    var overlayBackGround = new tabris.Composite({
+      height: window.screen.height,
+      width: window.screen.width,
       background: '#000',
-      opacity: .6
+      opacity: 0
     }).appendTo(page)
+
+    overlayBackGround.animate({
+      opacity: .8
+    },{
+      duration: 400,
+      easing: "ease-in-out",
+    })
+
+    overlayBackGround.on('animationstart',function(){
+      tabris.ui.set({toolbarVisible: false})
+    })
+
+    var modal = new tabris.Composite({
+      layoutData: {left: '20%', right: '20%'},
+      top: -200,
+      cornerRadius: 5,
+      height: 200,
+      background: '#fff',
+    }).on('tap', function() {
+      this.animate({
+        transform: {
+        translationY: -(window.screen.height/1.75),
+        }
+      },{
+        duration: 300,
+        easing: "ease-in-out",
+      })
+
+      this.on('animationend', function(){
+        tabris.ui.set({toolbarVisible: true})
+        setTimeout(function(){page.close()},150)
+      })
+    }).appendTo(page)
+
+    new tabris.TextView({
+      layoutData: {right: '50%'},
+      height: 35,
+      background: 'red'
+    }).appendTo(modal)
+
+
+    modal.animate({
+      transform: {
+      translationY: window.screen.height/1.75,
+      }
+    },{
+      delay: 400,
+      duration: 200,
+      easing: "ease-in-out",
+    })
   }
   // function createSubmitStatusPage(){
   //   var isLogged = false;
