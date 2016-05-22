@@ -47,16 +47,11 @@ module.exports = function () {
     id: "customerNameInput",
     text: '',
     message: "Customer Name"
-  }).on('focus', function() {
-    db('tempFormData')
-      .chain()
-      .find({ name: this.get('text') })
-      .assign({ name: ''})
-      .value()
   }).on('blur', function() {
+    var oldValue = db('tempFormData').first().name
     db('tempFormData')
       .chain()
-      .find({ name: '' })
+      .find({ name: oldValue })
       .assign({ name: this.get('text')})
       .value()
   }).appendTo(container);
@@ -70,16 +65,11 @@ module.exports = function () {
     id: "phoneNumberInput",
     text: fake.createNumber(),
     keyboard: "phone"
-  }).on('focus', function() {
-    db('tempFormData')
-      .chain()
-      .find({ phone: this.get('text') })
-      .assign({phone: ''})
-      .value()
   }).on('blur', function() {
+    var oldValue = db('tempFormData').first().phone
     db('tempFormData')
       .chain()
-      .find({ phone: '' })
+      .find({ phone: oldValue })
       .assign({ phone: this.get('text')})
       .value()
   }).appendTo(container);
@@ -93,16 +83,11 @@ module.exports = function () {
     id: "devicePasswordInput",
     message: "Device Password",
     keyboard: "numbersAndPunctuation"
-  }).on('focus', function() {
-    db('tempFormData')
-      .chain()
-      .find({ password: this.get('text') })
-      .assign({ password: ''})
-      .value()
   }).on('blur', function() {
+    var oldValue = db('tempFormData').first().password
     db('tempFormData')
       .chain()
-      .find({ password: '' })
+      .find({ password: oldValue })
       .assign({ password: this.get('text')})
       .value()
   }).appendTo(container);
@@ -116,16 +101,11 @@ module.exports = function () {
     id: "quotedPriceInput",
     message: "Quoted Price",
     keyboard: "number"
-  }).on('focus', function() {
-    db('tempFormData')
-      .chain()
-      .find({ price: this.get('text') })
-      .assign({ price: ''})
-      .value()
   }).on('blur', function() {
+    var oldValue = db('tempFormData').first().price
     db('tempFormData')
       .chain()
-      .find({ price: '' })
+      .find({ price: oldValue })
       .assign({ price: this.get('text')})
       .value()
   }).appendTo(container);
@@ -138,16 +118,11 @@ module.exports = function () {
   tabris.create("TextInput", {
     id: "deviceIssuesInput",
     message: "Describe Issues"
-  }).on('focus', function() {
-    db('tempFormData')
-      .chain()
-      .find({ issues: this.get('text') })
-      .assign({ issues: ''})
-      .value()
   }).on('blur', function() {
+    var oldValue = db('tempFormData').first().issues
     db('tempFormData')
       .chain()
-      .find({ issues: '' })
+      .find({ issues: oldValue })
       .assign({ issues: this.get('text')})
       .value()
   }).appendTo(container);
@@ -160,6 +135,13 @@ module.exports = function () {
   tabris.create("Picker", {
     id: "brandPicker",
     items: ["Select Brand", "Acer", "Apple", "Asus"]
+  }).on('change:selection', function(widget, selection) {
+    var oldValue = db('tempFormData').first().brand
+    db('tempFormData')
+      .chain()
+      .find({ brand: oldValue })
+      .assign({ brand: selection})
+      .value()
   }).appendTo(container);
 
   tabris.create("TextView", {
@@ -170,6 +152,13 @@ module.exports = function () {
   tabris.create("RadioButton", {
     id: "withCharger",
     text: "YES"
+  }).on('change:selection', function(widget, selection) {
+    var oldValue = db('tempFormData').first().charger
+    db('tempFormData')
+      .chain()
+      .find({ charger: oldValue })
+      .assign({ charger: selection})
+      .value()
   }).appendTo(container);
 
   tabris.create("RadioButton", {
@@ -180,7 +169,7 @@ module.exports = function () {
   tabris.create("Button", {
     id: "sendButton",
     text: "Send Order",
-  }).on("select", createSubmitStatusPage).appendTo(container);
+  }).on("select", modalWindow).appendTo(container);
 
 
   page.apply({
@@ -244,143 +233,138 @@ module.exports = function () {
     return valid;
   }
 
-  var orderData = function(){
-
-    var data = {
-      quoted_price: parseInt(container.children("#quotedPriceInput").get("text")),
-      instanceName: "bsrapp",
-      className: "order"
-    }
-
-    return data
+  function modalWindow() {
+    var modal = new tabris.Composite({
+      layoutData: {left: 50, right: 50},
+      centerY: -50,
+      height: 200,
+      background: '#000',
+      opacity: .6
+    }).appendTo(page)
   }
-
-  function createSubmitStatusPage(){
-    console.log(db('tempFormData').first().name)
-    var isLogged = false;
-
-    if(db('loggedUser').find()){
-      var USER_KEY = db('loggedUser').first().user_key;
-      var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
-      var DataObject = connection.DataObject;
-      isLogged = true
-    }
-
-    if(isOrderValid() && isLogged){
-      var page = tabris.create("Page", {
-        title: "sending",
-        topLevel: true,
-        id: "statusPage"
-      });
-
-      page.open();
-
-      var sendingOrder = tabris.create("TextView", {
-        text: "Sending Order......",
-        layoutData: {centerX: 0, centerY: -20},
-      }).appendTo(page);
-
-      var progressBar = tabris.create("ProgressBar",{
-        layoutData: {left: 15, right: 15, centerY: 0},
-        maximum: 300,
-        selection: 0
-      }).on("change:selection", function(progressBar, selection) {
-        if(selection === 300){
-          isLogged = false
-          setTimeout(function(){
-            page.close();
-          }, 500);
-        }
-      }).appendTo(page);
-
-      // setTimeout(function(){
-      //   progressBar.set("selection", 100)
-      // }, 500);
-
-      //Need to create the initial data to optain an order id
-      // var data = initialOrderData();
-
-      if(db.object.tempOderData === undefined) {
-        db('tempOderData').push({
-          id: null,
-          order: null,
-          tech: db('loggedUser').first().id,
-          customer: null,
-          device: null,
-        });
-      } else {
-        db('tempOderData').remove()
-
-        db('tempOderData').push({
-          id: null,
-          order: null,
-          tech: db('loggedUser').first().id,
-          customer: null,
-          device: null,
-        });
-      }
-
-      var order = {
-        quoted_price: parseInt(db('tempFormData').first().price),
-        instanceName: "bsrapp",
-        className: "order"
-      }
-
-      var customer = {
-        name: db('tempFormData').first().name,
-        phone_number: db('tempFormData').first().phone,
-        instanceName: "bsrapp",
-        className: "customer"
-      };
-
-      var device = {
-        type: "laptop",
-        brand: container.children("#brandPicker").get("selection"),
-        password: db('tempFormData').first().password,
-        charger: container.children("#withCharger").get("selection"),
-        instanceName: "bsrapp",
-        className: "device"
-      };
-
-      DataObject.please().create(order)
-        .then(function(order) {
-          db('tempOderData')
-            .chain()
-            .find({ id: null })
-            .assign({ id: order.id})
-            .value()
-            var currentSelection = progressBar.get("selection");
-            progressBar.set("selection", currentSelection + 100)
-        })
-        .then(function() {
-          return DataObject.please().create(device).then(function(device) {
-            db('tempOderData')
-              .chain()
-              .find({ device: null })
-              .assign({ device: device.id})
-              .value()
-              var currentSelection = progressBar.get("selection");
-              progressBar.set("selection", currentSelection + 100)
-          })
-        })
-        .then(function() {
-          return DataObject.please().create(customer).then(function(customer) {
-            db('tempOderData')
-              .chain()
-              .find({ customer: null })
-              .assign({ customer: customer.id})
-              .value()
-              var currentSelection = progressBar.get("selection");
-              progressBar.set("selection", currentSelection + 100)
-          })
-        }).then(function() {
-          console.log(db('tempOderData').first());
-        }).catch(function(error) {
-          console.log(error)
-        })
-
-    };
-  }
+  // function createSubmitStatusPage(){
+  //   var isLogged = false;
+  //
+  //   if(db('loggedUser').find()){
+  //     var USER_KEY = db('loggedUser').first().user_key;
+  //     var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
+  //     var DataObject = connection.DataObject;
+  //     isLogged = true
+  //   }
+  //
+  //   if(isOrderValid() && isLogged){
+  //     var page = tabris.create("Page", {
+  //       title: "sending",
+  //       id: "statusPage"
+  //     });
+  //
+  //     page.open();
+  //
+  //     var sendingOrder = tabris.create("TextView", {
+  //       text: "Sending Order......",
+  //       layoutData: {centerX: 0, centerY: -20},
+  //     }).appendTo(page);
+  //
+  //     var progressBar = tabris.create("ProgressBar",{
+  //       layoutData: {left: 15, right: 15, centerY: 0},
+  //       maximum: 400,
+  //       selection: 0
+  //     }).on("change:selection", function(progressBar, selection) {
+  //       // if(selection === 300){
+  //       //   isLogged = false
+  //       //   setTimeout(function(){
+  //       //     page.close();
+  //       //   }, 500);
+  //       // }
+  //     }).appendTo(page);
+  //
+  //     if(db.object.tempOderData === undefined) {
+  //       db('tempOderData').push({
+  //         order: null,
+  //         tech: db('loggedUser').first().id,
+  //         customer: null,
+  //         device: null,
+  //       });
+  //     } else {
+  //       db('tempOderData').remove()
+  //
+  //       db('tempOderData').push({
+  //         order: null,
+  //         tech: db('loggedUser').first().id,
+  //         customer: null,
+  //         device: null,
+  //       });
+  //     }
+  //
+  //     var order = {
+  //       quoted_price: parseInt(db('tempFormData').first().price),
+  //       instanceName: "bsrapp",
+  //       className: "order"
+  //     }
+  //
+  //     var customer = {
+  //       name: db('tempFormData').first().name,
+  //       phone_number: db('tempFormData').first().phone,
+  //       instanceName: "bsrapp",
+  //       className: "customer"
+  //     };
+  //
+  //     var device = {
+  //       type: "laptop",
+  //       brand: db('tempFormData').first().brand,
+  //       password: db('tempFormData').first().password,
+  //       with_charger: db('tempFormData').first().charger,
+  //       instanceName: "bsrapp",
+  //       className: "device"
+  //     };
+  //
+  //     DataObject.please().create(order)
+  //       .then(function(order) {
+  //         db('tempOderData')
+  //           .chain()
+  //           .find({ order: null })
+  //           .assign({ order: order.id})
+  //           .value()
+  //           var currentSelection = progressBar.get("selection");
+  //           progressBar.set("selection", currentSelection + 100)
+  //       })
+  //       .then(function() {
+  //         return DataObject.please().create(device).then(function(device) {
+  //           db('tempOderData')
+  //             .chain()
+  //             .find({ device: null })
+  //             .assign({ device: device.id})
+  //             .value()
+  //             var currentSelection = progressBar.get("selection");
+  //             progressBar.set("selection", currentSelection + 100)
+  //         })
+  //       })
+  //       .then(function() {
+  //         return DataObject.please().create(customer).then(function(customer) {
+  //           db('tempOderData')
+  //             .chain()
+  //             .find({ customer: null })
+  //             .assign({ customer: customer.id})
+  //             .value()
+  //             var currentSelection = progressBar.get("selection");
+  //             progressBar.set("selection", currentSelection + 100)
+  //         })
+  //       }).then(function() {
+  //         var edison_store_order = db('tempOderData').first()
+  //         edison_store_order.instanceName = 'bsrapp'
+  //         edison_store_order.className = 'edison_store'
+  //         return DataObject.please().create(edison_store_order).then(function(edison_store_order) {
+  //           console.log(edison_store_order.id)
+  //           var currentSelection = progressBar.get("selection");
+  //           progressBar.set("selection", currentSelection + 100)
+  //           page.close()
+  //         })
+  //       }).catch(function(error) {
+  //         console.log(error)
+  //       })
+  //
+  //   };
+  // }
 
   page.open();
 }
