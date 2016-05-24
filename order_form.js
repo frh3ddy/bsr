@@ -4,7 +4,7 @@ var Syncano = require('./syncano');
 var db = require('./localStorage')
 
 module.exports = function () {
-  if(db.object.tempOderData === undefined) {
+  if(db.object.tempFormData === undefined) {
     db('tempFormData').push({
       name: '',
       phone: '',
@@ -241,25 +241,160 @@ module.exports = function () {
       opacity: 0
     }).appendTo(page)
 
-    overlayBackGround.animate({
-      opacity: .8
-    },{
-      duration: 400,
-      easing: "ease-in-out",
-    })
-
-    overlayBackGround.on('animationstart',function(){
-      tabris.ui.set({toolbarVisible: false})
-    })
-
     var modal = new tabris.Composite({
       layoutData: {left: '20%', right: '20%'},
       top: -200,
       cornerRadius: 5,
       height: 200,
       background: '#fff',
-    }).on('tap', function() {
-      this.animate({
+    }).appendTo(page)
+
+    var dataObject = authenticate()
+    var validOrder = isOrderValid()
+
+    if(validOrder){
+      var progressBar = initializeProgressBar(modal);
+      initializeTemporaryData()
+      showModal()
+    }
+
+    function showModal() {
+      setTimeout(function() {
+        submitOrder(progressBar, dataObject)
+      }, 600)
+      overlayBackGround.animate({
+        opacity: .8
+      },{
+        duration: 400,
+        easing: "ease-in-out",
+      })
+
+      overlayBackGround.on('animationstart',function(){
+        tabris.ui.set({toolbarVisible: false})
+      })
+
+      modal.animate({
+        transform: {
+        translationY: window.screen.height/1.75,
+        }
+      },{
+        delay: 400,
+        duration: 200,
+        easing: "ease-in-out",
+      })
+
+      // modal.on('animationend', function() {
+      //   submitOrder(progressBar, dataObject)
+      // })
+    }
+
+  }
+
+  function authenticate() {
+    var USER_KEY = db('loggedUser').first().user_key;
+    var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
+    var DataObject = connection.DataObject;
+
+    return DataObject;
+  }
+
+  function initializeTemporaryData() {
+    if(db.object.tempOderData === undefined) {
+      db('tempOderData').push({
+        order: null,
+        tech: db('loggedUser').first().id,
+        customer: null,
+        device: null,
+      });
+    } else {
+      //since there no need to have multiple data objects, need to remove
+      //the only object that was created previously
+      db('tempOderData').remove()
+
+      db('tempOderData').push({
+        order: null,
+        tech: db('loggedUser').first().id,
+        customer: null,
+        device: null,
+      });
+    }
+
+    return null
+  }
+
+  function initializeProgressBar(parent) {
+    var buttonClose = new tabris.TextView({
+      text: "X Close",
+      alignment: 'center',
+      textColor: '#fff',
+      layoutData: {right: 0, left: 0},
+      opacity: 0,
+      bottom: -50,
+      height: 50,
+      background: '#3ac569'
+    }).on('tap', function () {
+      closePage()
+    })
+
+    var checkImage = new tabris.ImageView({
+      image: {src: 'images/check.png', scale: 3},
+      top:39,
+      height: 72,
+      width: 72,
+      centerX: 0
+    })
+
+    var sendingOrder = tabris.create("TextView", {
+      text: "Sending Order......",
+      layoutData: {centerX: 0, centerY: -30},
+    }).appendTo(parent);
+
+    var progressBar = tabris.create("ProgressBar",{
+      layoutData: {left: 15, right: 15, centerY: 0},
+      maximum: 400,
+      selection: 0
+    }).on("change:selection", function(progressBar, selection) {
+      if(selection === 400){
+        setTimeout(showCloseButton, 600)
+      }
+    }).appendTo(parent);
+
+    function showCloseButton() {
+      sendingOrder.animate({
+        transform: {
+        translationY: -105,
+        }
+      },{
+        duration: 400,
+        easing: "ease-in-out",
+      })
+
+      progressBar.animate({
+        transform: {
+        translationY: 105,
+        }
+      },{
+        duration: 400,
+        easing: "ease-in-out",
+      })
+
+      sendingOrder.on('animationend', function(){
+        checkImage.appendTo(parent)
+        buttonClose.appendTo(parent)
+        buttonClose.animate({
+          opacity: 1,
+          transform: {
+          translationY: -50,
+          }
+        },{
+          duration: 400,
+          easing: "ease-in-out",
+        })
+      })
+    }
+
+    function closePage() {
+      parent.animate({
         transform: {
         translationY: -(window.screen.height/1.75),
         }
@@ -268,152 +403,82 @@ module.exports = function () {
         easing: "ease-in-out",
       })
 
-      this.on('animationend', function(){
+      parent.on('animationend', function(){
         tabris.ui.set({toolbarVisible: true})
-        setTimeout(function(){page.close()},150)
+        setTimeout(function() {page.close()}, 150)
       })
-    }).appendTo(page)
+    }
 
-    new tabris.TextView({
-      layoutData: {right: '50%'},
-      height: 35,
-      background: 'red'
-    }).appendTo(modal)
-
-
-    modal.animate({
-      transform: {
-      translationY: window.screen.height/1.75,
-      }
-    },{
-      delay: 400,
-      duration: 200,
-      easing: "ease-in-out",
-    })
+    return progressBar
   }
-  // function createSubmitStatusPage(){
-  //   var isLogged = false;
-  //
-  //   if(db('loggedUser').find()){
-  //     var USER_KEY = db('loggedUser').first().user_key;
-  //     var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
-  //     var DataObject = connection.DataObject;
-  //     isLogged = true
-  //   }
-  //
-  //   if(isOrderValid() && isLogged){
-  //     var page = tabris.create("Page", {
-  //       title: "sending",
-  //       id: "statusPage"
-  //     });
-  //
-  //     page.open();
-  //
-  //     var sendingOrder = tabris.create("TextView", {
-  //       text: "Sending Order......",
-  //       layoutData: {centerX: 0, centerY: -20},
-  //     }).appendTo(page);
-  //
-  //     var progressBar = tabris.create("ProgressBar",{
-  //       layoutData: {left: 15, right: 15, centerY: 0},
-  //       maximum: 400,
-  //       selection: 0
-  //     }).on("change:selection", function(progressBar, selection) {
-  //       // if(selection === 300){
-  //       //   isLogged = false
-  //       //   setTimeout(function(){
-  //       //     page.close();
-  //       //   }, 500);
-  //       // }
-  //     }).appendTo(page);
-  //
-  //     if(db.object.tempOderData === undefined) {
-  //       db('tempOderData').push({
-  //         order: null,
-  //         tech: db('loggedUser').first().id,
-  //         customer: null,
-  //         device: null,
-  //       });
-  //     } else {
-  //       db('tempOderData').remove()
-  //
-  //       db('tempOderData').push({
-  //         order: null,
-  //         tech: db('loggedUser').first().id,
-  //         customer: null,
-  //         device: null,
-  //       });
-  //     }
-  //
-  //     var order = {
-  //       quoted_price: parseInt(db('tempFormData').first().price),
-  //       instanceName: "bsrapp",
-  //       className: "order"
-  //     }
-  //
-  //     var customer = {
-  //       name: db('tempFormData').first().name,
-  //       phone_number: db('tempFormData').first().phone,
-  //       instanceName: "bsrapp",
-  //       className: "customer"
-  //     };
-  //
-  //     var device = {
-  //       type: "laptop",
-  //       brand: db('tempFormData').first().brand,
-  //       password: db('tempFormData').first().password,
-  //       with_charger: db('tempFormData').first().charger,
-  //       instanceName: "bsrapp",
-  //       className: "device"
-  //     };
-  //
-  //     DataObject.please().create(order)
-  //       .then(function(order) {
-  //         db('tempOderData')
-  //           .chain()
-  //           .find({ order: null })
-  //           .assign({ order: order.id})
-  //           .value()
-  //           var currentSelection = progressBar.get("selection");
-  //           progressBar.set("selection", currentSelection + 100)
-  //       })
-  //       .then(function() {
-  //         return DataObject.please().create(device).then(function(device) {
-  //           db('tempOderData')
-  //             .chain()
-  //             .find({ device: null })
-  //             .assign({ device: device.id})
-  //             .value()
-  //             var currentSelection = progressBar.get("selection");
-  //             progressBar.set("selection", currentSelection + 100)
-  //         })
-  //       })
-  //       .then(function() {
-  //         return DataObject.please().create(customer).then(function(customer) {
-  //           db('tempOderData')
-  //             .chain()
-  //             .find({ customer: null })
-  //             .assign({ customer: customer.id})
-  //             .value()
-  //             var currentSelection = progressBar.get("selection");
-  //             progressBar.set("selection", currentSelection + 100)
-  //         })
-  //       }).then(function() {
-  //         var edison_store_order = db('tempOderData').first()
-  //         edison_store_order.instanceName = 'bsrapp'
-  //         edison_store_order.className = 'edison_store'
-  //         return DataObject.please().create(edison_store_order).then(function(edison_store_order) {
-  //           console.log(edison_store_order.id)
-  //           var currentSelection = progressBar.get("selection");
-  //           progressBar.set("selection", currentSelection + 100)
-  //           page.close()
-  //         })
-  //       }).catch(function(error) {
-  //         console.log(error)
-  //       })
-  //
-  //   };
-  // }
+
+  function submitOrder(progressBar, DataObject) {
+    var order = {
+      quoted_price: parseInt(db('tempFormData').first().price),
+      instanceName: "bsrapp",
+      className: "order"
+    }
+
+    var customer = {
+      name: db('tempFormData').first().name,
+      phone_number: db('tempFormData').first().phone,
+      instanceName: "bsrapp",
+      className: "customer"
+    };
+
+    var device = {
+      type: "laptop",
+      brand: db('tempFormData').first().brand,
+      password: db('tempFormData').first().password,
+      with_charger: db('tempFormData').first().charger,
+      instanceName: "bsrapp",
+      className: "device"
+    };
+
+    DataObject.please().create(order)
+      .then(function(order) {
+        db('tempOderData')
+          .chain()
+          .find({ order: null })
+          .assign({ order: order.id})
+          .value()
+          var currentSelection = progressBar.get("selection");
+          progressBar.set("selection", currentSelection + 100)
+      })
+      .then(function() {
+        return DataObject.please().create(device).then(function(device) {
+          db('tempOderData')
+            .chain()
+            .find({ device: null })
+            .assign({ device: device.id})
+            .value()
+            var currentSelection = progressBar.get("selection");
+            progressBar.set("selection", currentSelection + 100)
+        })
+      })
+      .then(function() {
+        return DataObject.please().create(customer).then(function(customer) {
+          db('tempOderData')
+            .chain()
+            .find({ customer: null })
+            .assign({ customer: customer.id})
+            .value()
+            var currentSelection = progressBar.get("selection");
+            progressBar.set("selection", currentSelection + 100)
+        })
+      }).then(function() {
+        var edison_store_order = db('tempOderData').first()
+        edison_store_order.instanceName = 'bsrapp'
+        edison_store_order.className = 'edison_store'
+        return DataObject.please().create(edison_store_order).then(function(edison_store_order) {
+          console.log(edison_store_order.id)
+          var currentSelection = progressBar.get("selection");
+          progressBar.set("selection", currentSelection + 100)
+        })
+      }).catch(function(error) {
+        console.log(error)
+      })
+  }
 
   page.open();
 }
