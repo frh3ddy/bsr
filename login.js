@@ -31,29 +31,33 @@ module.exports = function () {
     message: "Enter your Password",
     height: 35,
     type: "password"
-  }).appendTo(container);
+  }).on('accept', login).appendTo(container);
 
   new tabris.Button({
     text: 'LOGIN',
     left: 0,
     right: 0,
     top: ['prev()', 15],
-  }).on('select', function (){
+  }).on('select', login).appendTo(container);
 
-    var input = {
+  function login() {
+    var credentials = {
       username: user.get('text'),
       password: password.get('text')
     }
 
-    connection.User.please().login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
+    connection.User.please().login({instanceName: 'bsrapp'}, credentials)
       .then(function(response) {
-        if(localStorage.getItem('userInfo')){
-          localStorage.removeItem('userInfo')
+        if(db.object.userInfo === undefined) {
+          response.password = credentials.password
+          db('userInfo').push(response);
+        } else {
+          //since there no need to have multiple data objects, need to remove
+          //the only object that was created previously
+          response.password = credentials.password
+          db('userInfo').remove();
+          db('userInfo').push(response);
         }
-
-        localStorage.setItem('userInfo', JSON.stringify(input));
-
-        db('loggedUser').push(response);
 
         var headerContainer = tabris.ui.find("#Login");
         var userInfo = tabris.ui.find("#user-info");
@@ -75,13 +79,12 @@ module.exports = function () {
 
         userInfo.set('opacity', 1)
         userName.set('text', 'Tech: ' + response.username)
-        // tabris.app.reload()
         page.close();
       })
       .catch(function(error) {
         console.log(error);
       });
-  }).appendTo(container);
+  }
 
   page.open()
 };

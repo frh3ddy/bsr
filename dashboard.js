@@ -3,44 +3,50 @@ var Syncano = require('./syncano');
 var login = require('./login');
 var db = require('./localStorage')
 
-if(db('loggedUser').find()){
-  db('loggedUser').remove()
-}
-
 var connection = Syncano({apiKey: "bae21c7ba933f99dcc2782b27f3676ffdb82b539"});
 
-if(localStorage.getItem('userInfo')){
-  var input = JSON.parse(localStorage.getItem('userInfo'));
+function authenticate() {
+  var logged = false
+  if(db('userInfo').find()){
+    login()
+  } else {
+    return false
+  }
 
-  connection.User.please().login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
-    .then(function(response) {
-      db('loggedUser').push(response)
-
-      var headerContainer = tabris.ui.find("#Login");
-      var userInfo = tabris.ui.find("#user-info");
-      var userName = tabris.ui.find("#user-name");
-
-      headerContainer.animate({
-        transform: {
-          translationX: window.screen.width - 109
-        }
-      }, {
-        duration: 100,
-        easing: "ease-out"
-      });
-      userInfo.set('opacity', 1)
-      userName.set('text', 'Tech: ' + response.username)
-
-      tabris.ui.find('#orderContainer').off().on('tap', function() {
-        orderForm()
+  function login() {
+    var input = db('userInfo').first();
+    return connection.User.please()
+      .login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
+      .then(function(response) {
+        logged = true
+        // var headerContainer = tabris.ui.find("#Login");
+        // var userInfo = tabris.ui.find("#user-info");
+        // var userName = tabris.ui.find("#user-name");
+        //
+        // headerContainer.animate({
+        //   transform: {
+        //     translationX: window.screen.width - 109
+        //   }
+        // }, {
+        //   duration: 100,
+        //   easing: "ease-out"
+        // });
+        // userInfo.set('opacity', 1)
+        // userName.set('text', 'Tech: ' + response.username)
+        //
+        // tabris.ui.find('#orderContainer').off().on('tap', function() {
+        //   orderForm()
+        // })
       })
-    })
-    .catch(function(error) {
-      console.log(error);
-    });
+      .catch(function(error) {
+        db('userInfo').remove()
+        logged = false 
+      });
+  }
 }
 
 function initDashboard(tab) {
+  console.log(authenticate());
   var page = new tabris.ScrollView({
     left: 0, right: 0, top: 0, bottom: 0,
   }).appendTo(tab);

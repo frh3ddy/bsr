@@ -291,7 +291,7 @@ module.exports = function () {
   }
 
   function authenticate() {
-    var USER_KEY = db('loggedUser').first().user_key;
+    var USER_KEY = db('userInfo').first().user_key;
     var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'});
     var DataObject = connection.DataObject;
 
