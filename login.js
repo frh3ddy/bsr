@@ -52,31 +52,17 @@ module.exports = function () {
           response.password = credentials.password
           db('userInfo').push(response);
         } else {
-          //since there no need to have multiple data objects, need to remove
+          //since there is no need to have multiple data objects, remove
           //the only object that was created previously
           response.password = credentials.password
           db('userInfo').remove();
           db('userInfo').push(response);
         }
-
         var headerContainer = tabris.ui.find("#Login");
         var userInfo = tabris.ui.find("#user-info");
         var userName = tabris.ui.find("#user-name");
-        var orderContainer = tabris.ui.find('#orderContainer')
 
-        orderContainer.off().on('tap', function(){
-            orderForm();
-        })
-
-        headerContainer.animate({
-          transform: {
-            translationX: window.screen.width - 109
-          }
-        }, {
-          duration: 100,
-          easing: "ease-out"
-        });
-
+        headerContainer.set('opacity', 0)
         userInfo.set('opacity', 1)
         userName.set('text', 'Tech: ' + response.username)
         page.close();

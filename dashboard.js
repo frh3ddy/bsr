@@ -5,49 +5,17 @@ var db = require('./localStorage')
 
 var connection = Syncano({apiKey: "bae21c7ba933f99dcc2782b27f3676ffdb82b539"});
 
-function authenticate() {
-  var logged = false
-  if(db('userInfo').find()){
-    login()
-  } else {
-    return false
-  }
-
-  function login() {
-    var input = db('userInfo').first();
-    return connection.User.please()
-      .login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
-      .then(function(response) {
-        logged = true
-        // var headerContainer = tabris.ui.find("#Login");
-        // var userInfo = tabris.ui.find("#user-info");
-        // var userName = tabris.ui.find("#user-name");
-        //
-        // headerContainer.animate({
-        //   transform: {
-        //     translationX: window.screen.width - 109
-        //   }
-        // }, {
-        //   duration: 100,
-        //   easing: "ease-out"
-        // });
-        // userInfo.set('opacity', 1)
-        // userName.set('text', 'Tech: ' + response.username)
-        //
-        // tabris.ui.find('#orderContainer').off().on('tap', function() {
-        //   orderForm()
-        // })
-      })
-      .catch(function(error) {
-        db('userInfo').remove()
-        logged = false 
-      });
-  }
-}
-
 function initDashboard(tab) {
-  console.log(authenticate());
+  authenticate().then(function(response) {
+    if(response === true){
+      showUserInfo()
+    } else {
+      showLoginButton()
+    }
+  })
+
   var page = new tabris.ScrollView({
+    id: '#dashboardContainer',
     left: 0, right: 0, top: 0, bottom: 0,
   }).appendTo(tab);
 
@@ -63,9 +31,9 @@ function initDashboard(tab) {
     opacity: 0,
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
-  }).appendTo(page);
+  }).appendTo(page)
 
-  new tabris.TextView({
+  var userName = new tabris.TextView({
     id: 'user-name',
     text: '',
     alignment: 'center',
@@ -73,7 +41,7 @@ function initDashboard(tab) {
     font: '16px'
   }).appendTo(userContainer);
 
-  new tabris.TextView({
+  var userLocation = new tabris.TextView({
     text: 'Location: Edison',
     alignment: 'center',
     layoutData: {top: ["prev()", 8], left:25, right: 25},
@@ -85,27 +53,12 @@ function initDashboard(tab) {
     font: '12px',
     layoutData: {top: ['prev()', 8], bottom: 0, left: 25, right: 25}
   }).on('select', function() {
+    showLoginButton()
     this.parent().animate({
       opacity: 0
     }, {
       duration: 100,
       easing: "ease-out"
-    });
-    var headerContainer = tabris.ui.find("#Login");
-    headerContainer.animate({
-      transform: {
-        translationX: 0
-      },
-      opacity: 1
-    }, {
-      duration: 200,
-      easing: "ease-out"
-    });
-    localStorage.removeItem('userInfo');
-    delete db.object.loggedUser;
-    db.write()
-    tabris.ui.find('#orderContainer').off().on('tap', function() {
-      console.log('you need to be logged to place and order');
     });
   }).appendTo(userContainer);
 
@@ -114,14 +67,7 @@ function initDashboard(tab) {
     layoutData: {left: 109, right: 0, top: 8},
     height: 93,
     opacity: 0
-  }).appendTo(page);
-
-  headerContainer.animate({
-    opacity: 1
-  }, {
-    duration: 1100,
-  });
-
+  })
 
   new tabris.TextView({
     text: "LOGIN",
@@ -136,8 +82,6 @@ function initDashboard(tab) {
   var orderContainer = new tabris.Composite({
     id: 'orderContainer',
     layoutData: {top: ['prev()', 30], left: 0, right: 0},
-  }).on('tap', function(){
-    console.log('you need to be looged')
   }).appendTo(page);
 
   var orderContainerItemFirst = new tabris.Composite({
@@ -145,6 +89,12 @@ function initDashboard(tab) {
     background: '#03A6FF',
     height: 150,
     cornerRadius: 3
+  }).on('tap', function(){
+    if(db('userInfo').find()){
+      orderForm()
+    } else {
+      console.log('need to be logged');
+    }
   }).appendTo(orderContainer);
 
   new tabris.ImageView({
@@ -255,7 +205,59 @@ function initDashboard(tab) {
     textColor: '#fff'
   }).appendTo(deliveryContainerItemSecond);
 
-  // return page; future refactor, return page to be appended
+  function showLoginButton() {
+    var hasParent = headerContainer.parent()
+    if(hasParent){
+      headerContainer.animate({
+        opacity: 1
+      }, {
+        duration: 200,
+        easing: "ease-out"
+      });
+    } else {
+      headerContainer.appendTo(page)
+      headerContainer.animate({
+        opacity: 1
+      }, {
+        duration: 200,
+        easing: "ease-out"
+      });
+      db('userInfo').remove()
+    }
+  }
+
+  function showUserInfo() {
+    var name = db('userInfo').first().username
+    userName.set('text', 'Tech: ' + name)
+    userContainer.animate({
+      opacity: 1
+    }, {
+      duration: 200,
+      easing: "ease-out"
+    });
+  }
+}
+
+function authenticate() {
+  if(db('userInfo').find()){
+    return login()
+  } else {
+    //the caller is especting a promise
+    return Promise.resolve(false)
+  }
+
+  function login() {
+    var input = db('userInfo').first();
+    return connection.User.please()
+      .login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
+      .then(function(response) {
+        return true
+      })
+      .catch(function(error) {
+        db('userInfo').remove()
+        return false
+      });
+  }
 }
 
 module.exports = initDashboard;
