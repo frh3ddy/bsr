@@ -355,6 +355,7 @@ module.exports = function () {
       selection: 0
     }).on("change:selection", function(progressBar, selection) {
       if(selection === 400){
+        var edison = tabris.ui.find("#edisonlist");
         setTimeout(showCloseButton, 600)
       }
     }).appendTo(parent);
@@ -430,6 +431,8 @@ module.exports = function () {
       type: "laptop",
       brand: db('tempFormData').first().brand,
       password: db('tempFormData').first().password,
+      issues: db('tempFormData').first().issues,
+      status: 'Order Taken',
       with_charger: db('tempFormData').first().charger,
       instanceName: "bsrapp",
       className: "device"
@@ -471,7 +474,6 @@ module.exports = function () {
         edison_store_order.instanceName = 'bsrapp'
         edison_store_order.className = 'edison_store'
         return DataObject.please().create(edison_store_order).then(function(edison_store_order) {
-          console.log(edison_store_order.id)
           var currentSelection = progressBar.get("selection");
           progressBar.set("selection", currentSelection + 100)
         })

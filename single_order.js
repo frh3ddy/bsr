@@ -124,7 +124,7 @@ function orderPage(order) {
   add.editableGroup({
     parent: deviceInfoSection,
     label: "Device Issues",
-    bodyText: order.device.device_issues
+    bodyText: order.device.issues
   });
 
   add.line({parent: deviceInfoSection});
@@ -132,7 +132,7 @@ function orderPage(order) {
   add.editableGroup({
     parent: deviceInfoSection,
     label: "Current Status",
-    bodyText: order.status.status
+    bodyText: order.device.status
   });
 
   add.line({parent: deviceInfoSection});
@@ -164,7 +164,7 @@ function orderPage(order) {
   var orderDateText = tabris.create("TextView", {
     font: "16px",
     textColor: "#252c41",
-    text: order.date,
+    text: order.created_at,
     layoutData: {top: [orderDateLabel, 6], left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection);
 
@@ -181,7 +181,7 @@ function orderPage(order) {
   var orderQuotedPriceText = tabris.create("TextView", {
     font: "16px",
     textColor: "#252c41",
-    text: "$" + order.price + ".00",
+    text: "$" + order.order.quoted_price + ".00",
     layoutData: {top: [orderQuotedPriceLabel, 6], left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection);
 

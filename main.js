@@ -3,18 +3,6 @@ var orderForm = require("./order_form");
 var dashboard = require("./dashboard.js");
 var Syncano = require('./syncano');
 
-// var connection = Syncano({ apiKey: '5d8c314a9d3642d75466d780c433ef563a8cc98c'});
-// var DataEndpoint = connection.DataEndpoint;
-//
-// DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
-// .then(function(dataObjects) {
-//   dataObjects.objects.forEach(function (el) {
-//   });
-// })
-// .catch(function(error) {
-//   console.log(error)
-// });
-
 var page = new tabris.Page({
   title: "Dashboard",
   topLevel: true
@@ -33,7 +21,7 @@ var createTab = function(title, image, content) {
   }).appendTo(tabFolder);
 
   if(content){
-    //the content need an argument to be the container
+    //the content needs an argument to be the container
     content(tab);
   }
 };
