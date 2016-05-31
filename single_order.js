@@ -1,193 +1,188 @@
-var add = require('./single_order_helpers');
-var MARGINLEFT = 10;
+var add = require('./single_order_helpers')
+var MARGINLEFT = 10
 
-function orderPage(order) {
-  var page = tabris.create("Page", {
-    title: "Order " + order.id
-  });
+function orderPage (order) {
+  var page = tabris.create('Page', {
+    title: 'Order ' + order.id
+  })
 
-  var orderInfoContainer = tabris.create("ScrollView", {
+  var orderInfoContainer = tabris.create('ScrollView', {
     layoutData: {left: 0, right: 0, top: 0, bottom: 0},
-    background: "#f4f5f9"
-  }).appendTo(page);
+    background: '#f4f5f9'
+  }).appendTo(page)
 
-
-  var customerHeaderText = tabris.create("TextView", {
-    text: "CUSTOMER INFORMATION",
-    font: "13px bold",
-    textColor: "#6d819c",
+  var customerHeaderText = tabris.create('TextView', {
+    text: 'CUSTOMER INFORMATION',
+    font: '13px bold',
+    textColor: '#6d819c',
     layoutData: {left: MARGINLEFT, top: 20},
     markupEnabled: true
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  var customerInfoSection = tabris.create("Composite", {
-    background: "#fff",
+  var customerInfoSection = tabris.create('Composite', {
+    background: '#fff',
     layoutData: {top: [customerHeaderText, 5], left: 0, right: 0}
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  add.line({parent: customerInfoSection, alignment: "top"});
+  add.line({parent: customerInfoSection, alignment: 'top'})
 
-  var customerNameLabel = tabris.create("TextView", {
-    text: "Name",
-    font: "11px",
-    textColor: "#6E7783",
+  var customerNameLabel = tabris.create('TextView', {
+    text: 'Name',
+    font: '11px',
+    textColor: '#6E7783',
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  var customerNameText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
+  var customerNameText = tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
     text: order.customer.name,
     layoutData: {top: [customerNameLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  add.line({parent: customerInfoSection});
+  add.line({parent: customerInfoSection})
 
-  var smsIcon = tabris.create("ImageView", {
+  var smsIcon = tabris.create('ImageView', {
     image: {src: 'http://www.5dollarperfume.com/images/menGiftSets/smsIcon.png', scale: 3},
     highlightOnTouch: true,
     layoutData: {top: [customerNameText, 16], right: 16}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  var iconCall = tabris.create("ImageView", {
+  tabris.create('ImageView', {
     highlightOnTouch: true,
     image: {src: 'http://www.5dollarperfume.com/images/menGiftSets/iconCall.png', scale: 3},
     layoutData: {top: [customerNameText, 16], right: [smsIcon, 25]}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  var customerPhoneLabel = tabris.create("TextView", {
-    text: "Phone #",
-    font: "11px",
-    textColor: "#6E7783",
+  var customerPhoneLabel = tabris.create('TextView', {
+    text: 'Phone #',
+    font: '11px',
+    textColor: '#6E7783',
     layoutData: {top: [customerNameText, 12], left: MARGINLEFT, right: 0}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  var customerPhoneText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
+  tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
     text: order.customer.phone_number,
     layoutData: {top: [customerPhoneLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(customerInfoSection);
+  }).appendTo(customerInfoSection)
 
-  add.line({parent: customerInfoSection});
+  add.line({parent: customerInfoSection})
 
   // Device info section
-  var deviceHeaderText = tabris.create("TextView", {
-    text: "DEVICE INFORMATION",
-    font: "13px bold",
-    textColor: "#6d819c",
-    layoutData: {left: 10, top: [customerInfoSection ,20]},
+  var deviceHeaderText = tabris.create('TextView', {
+    text: 'DEVICE INFORMATION',
+    font: '13px bold',
+    textColor: '#6d819c',
+    layoutData: {left: 10, top: [customerInfoSection, 20]},
     markupEnabled: true
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  var deviceInfoSection = tabris.create("Composite", {
-    background: "#fff",
+  var deviceInfoSection = tabris.create('Composite', {
+    background: '#fff',
     layoutData: {top: [deviceHeaderText, 5], left: 0, right: 0}
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  add.line({parent: deviceInfoSection, alignment: "top"});
+  add.line({parent: deviceInfoSection, alignment: 'top'})
 
-  var deviceBrandLabel = tabris.create("TextView", {
-    text: "Brand",
-    font: "11px",
-    textColor: "#6E7783",
+  var deviceBrandLabel = tabris.create('TextView', {
+    text: 'Brand',
+    font: '11px',
+    textColor: '#6E7783',
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
-  }).appendTo(deviceInfoSection);
+  }).appendTo(deviceInfoSection)
 
-
-  var deviceBrandText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
+  var deviceBrandText = tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
     text: order.device.brand,
     layoutData: {top: [deviceBrandLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(deviceInfoSection);
+  }).appendTo(deviceInfoSection)
 
+  add.line({parent: deviceInfoSection})
 
-  add.line({parent: deviceInfoSection});
-
-  var devicePasswordLabel = tabris.create("TextView", {
-    text: "Password",
-    font: "11px",
-    textColor: "#6E7783",
+  var devicePasswordLabel = tabris.create('TextView', {
+    text: 'Password',
+    font: '11px',
+    textColor: '#6E7783',
     layoutData: {top: [deviceBrandText, 12], left: MARGINLEFT, right: 0}
-  }).appendTo(deviceInfoSection);
+  }).appendTo(deviceInfoSection)
 
-  var devicePasswordText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
+  tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
     text: order.device.password,
     layoutData: {top: [devicePasswordLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(deviceInfoSection);
+  }).appendTo(deviceInfoSection)
 
-  add.line({parent: deviceInfoSection});
+  add.line({parent: deviceInfoSection})
 
   add.editableGroup({
     parent: deviceInfoSection,
-    label: "Device Issues",
+    label: 'Device Issues',
     bodyText: order.device.issues
-  });
+  })
 
-  add.line({parent: deviceInfoSection});
+  add.line({parent: deviceInfoSection})
 
   add.editableGroup({
     parent: deviceInfoSection,
-    label: "Current Status",
+    label: 'Current Status',
     bodyText: order.device.status
-  });
+  })
 
-  add.line({parent: deviceInfoSection});
+  add.line({parent: deviceInfoSection})
 
   // Order info section
-  var orderHeaderText = tabris.create("TextView", {
-    text: "ORDER DETAILS",
-    font: "13px bold",
-    textColor: "#6d819c",
-    layoutData: {left: 10, top: [deviceInfoSection ,20]},
+  var orderHeaderText = tabris.create('TextView', {
+    text: 'ORDER DETAILS',
+    font: '13px bold',
+    textColor: '#6d819c',
+    layoutData: {left: 10, top: [deviceInfoSection, 20]},
     markupEnabled: true
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  var orderDetailsSection = tabris.create("Composite", {
-    background: "#fff",
+  var orderDetailsSection = tabris.create('Composite', {
+    background: '#fff',
     layoutData: {top: [orderHeaderText, 5], left: 0, right: 0}
-  }).appendTo(orderInfoContainer);
+  }).appendTo(orderInfoContainer)
 
-  add.line({parent: orderDetailsSection, alignment: "top"});
+  add.line({parent: orderDetailsSection, alignment: 'top'})
 
-  var orderDateLabel = tabris.create("TextView", {
-    text: "Order was Taken:",
-    font: "11px",
-    textColor: "#6E7783",
+  var orderDateLabel = tabris.create('TextView', {
+    text: 'Order was Taken:',
+    font: '11px',
+    textColor: '#6E7783',
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
-  }).appendTo(orderDetailsSection);
+  }).appendTo(orderDetailsSection)
 
-
-  var orderDateText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
+  var orderDateText = tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
     text: order.created_at,
     layoutData: {top: [orderDateLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(orderDetailsSection);
+  }).appendTo(orderDetailsSection)
 
+  add.line({parent: orderDetailsSection})
 
-  add.line({parent: orderDetailsSection});
-
-  var orderQuotedPriceLabel = tabris.create("TextView", {
-    text: "Quoted Price",
-    font: "11px",
-    textColor: "#3ac569",
+  var orderQuotedPriceLabel = tabris.create('TextView', {
+    text: 'Quoted Price',
+    font: '11px',
+    textColor: '#3ac569',
     layoutData: {top: [orderDateText, 12], left: MARGINLEFT, right: 0}
-  }).appendTo(orderDetailsSection);
+  }).appendTo(orderDetailsSection)
 
-  var orderQuotedPriceText = tabris.create("TextView", {
-    font: "16px",
-    textColor: "#252c41",
-    text: "$" + order.order.quoted_price + ".00",
+  tabris.create('TextView', {
+    font: '16px',
+    textColor: '#252c41',
+    text: '$' + order.order.quoted_price + '.00',
     layoutData: {top: [orderQuotedPriceLabel, 6], left: MARGINLEFT, right: 0}
-  }).appendTo(orderDetailsSection);
+  }).appendTo(orderDetailsSection)
 
-  add.line({parent: orderDetailsSection});
+  add.line({parent: orderDetailsSection})
 
   page.open()
 }
 
-module.exports = orderPage;
+module.exports = orderPage
