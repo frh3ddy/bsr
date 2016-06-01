@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.tabrisjs.getting.started" version="1.0.0">
-  <name>HelloWorld</name>
+<widget id="com.buysellrepairs.bsrapp" version="1.0.0">
+  <name>BSR App</name>
   <description>
-   A sample Tabris.js application.
+   BSR App Management
   </description>
-  <author email="dev@tabrisjs.com" href="https://tabrisjs.com">
-   Tabris.js Team
+  <author email="fr3ddy@me.com" href="https://buysellrepairs.com">
+   Buysellrepairs Team
   </author>
 </widget>
