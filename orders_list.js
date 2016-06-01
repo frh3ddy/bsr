@@ -10,13 +10,13 @@ var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName
 .then(function (dataObjects) {
     if (db('edisonPendingOrders').find()) {
       dataObjects.objects.forEach(function (el) {
-        // save the promise in a variable so it can be reused and fullfill
-        // when calling value() at the end, and also can be used to determined
-        // if the element was found
-        var findIt = db('edisonPendingOrders').chain().find({id: el.id})
+        var findIt = db('edisonPendingOrders').find({id: el.id})
         if (findIt) {
-          // call value to fulfill the primise and save the data
-          findIt.assign(el).value()
+          db('edisonPendingOrders')
+            .chain()
+            .find({id: el.id})
+            .assign(el)
+            .value()
         } else {
           db('edisonPendingOrders').push(el)
         }

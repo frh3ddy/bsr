@@ -295,16 +295,12 @@ module.exports = function () {
       selection: 0
     }).on('change:selection', function (progressBar, selection) {
       if (selection === 400) {
-        // need a reference to the CollectionView widget
         var edison = tabris.ui.find('#edisonlist')[0]
         edison.insert([db('tempOderData').first()], 0)
         edison.reveal(0);
 
-        // clean the temporary sored Data, so we dont have to check if the
-        // data exist and clean it at the start
         db('tempFormData').remove()
         db('tempOderData').remove()
-
         setTimeout(showCloseButton, 600)
       }
     }).appendTo(parent)
@@ -429,10 +425,7 @@ module.exports = function () {
           db('tempOderData')
             .chain()
             .first()
-            .assign({
-              id: edisonOrder.id,
-              created_at:  edisonOrder.created_at
-            })
+            .assign({ id: edisonOrder.id, created_at:  edisonOrder.created_at})
             .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
