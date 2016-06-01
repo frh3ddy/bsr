@@ -4,29 +4,7 @@ var Syncano = require('./syncano')
 var db = require('./localStorage')
 
 module.exports = function () {
-  if (db.object.tempFormData === undefined) {
-    db('tempFormData').push({
-      name: '',
-      phone: '',
-      password: '',
-      price: '',
-      issues: '',
-      brand: '',
-      charger: false
-    })
-  } else {
-    db('tempFormData').remove()
-
-    db('tempFormData').push({
-      name: '',
-      phone: '',
-      password: '',
-      price: '',
-      issues: '',
-      brand: '',
-      charger: false
-    })
-  }
+  db('tempFormData').push({})
 
   var page = new tabris.Page({
     title: 'Order'
@@ -48,10 +26,9 @@ module.exports = function () {
     text: '',
     message: 'Customer Name'
   }).on('blur', function () {
-    var oldValue = db('tempFormData').first().name
     db('tempFormData')
       .chain()
-      .find({ name: oldValue })
+      .first()
       .assign({ name: this.get('text') })
       .value()
   }).appendTo(container)
@@ -66,10 +43,9 @@ module.exports = function () {
     text: fake.createNumber(),
     keyboard: 'phone'
   }).on('blur', function () {
-    var oldValue = db('tempFormData').first().phone
     db('tempFormData')
       .chain()
-      .find({ phone: oldValue })
+      .first()
       .assign({ phone: this.get('text') })
       .value()
   }).appendTo(container)
@@ -84,10 +60,9 @@ module.exports = function () {
     message: 'Device Password',
     keyboard: 'numbersAndPunctuation'
   }).on('blur', function () {
-    var oldValue = db('tempFormData').first().password
     db('tempFormData')
       .chain()
-      .find({ password: oldValue })
+      .first()
       .assign({ password: this.get('text') })
       .value()
   }).appendTo(container)
@@ -102,10 +77,9 @@ module.exports = function () {
     message: 'Quoted Price',
     keyboard: 'number'
   }).on('blur', function () {
-    var oldValue = db('tempFormData').first().price
     db('tempFormData')
       .chain()
-      .find({ price: oldValue })
+      .first()
       .assign({ price: this.get('text') })
       .value()
   }).appendTo(container)
@@ -119,10 +93,9 @@ module.exports = function () {
     id: 'deviceIssuesInput',
     message: 'Describe Issues'
   }).on('blur', function () {
-    var oldValue = db('tempFormData').first().issues
     db('tempFormData')
       .chain()
-      .find({ issues: oldValue })
+      .first()
       .assign({ issues: this.get('text') })
       .value()
   }).appendTo(container)
@@ -136,10 +109,9 @@ module.exports = function () {
     id: 'brandPicker',
     items: ['Select Brand', 'Acer', 'Apple', 'Asus']
   }).on('change:selection', function (widget, selection) {
-    var oldValue = db('tempFormData').first().brand
     db('tempFormData')
       .chain()
-      .find({ brand: oldValue })
+      .first()
       .assign({ brand: selection })
       .value()
   }).appendTo(container)
@@ -153,10 +125,9 @@ module.exports = function () {
     id: 'withCharger',
     text: 'YES'
   }).on('change:selection', function (widget, selection) {
-    var oldValue = db('tempFormData').first().charger
     db('tempFormData')
       .chain()
-      .find({ charger: oldValue })
+      .first()
       .assign({ charger: selection })
       .value()
   }).appendTo(container)
@@ -253,7 +224,6 @@ module.exports = function () {
 
     if (validOrder) {
       var progressBar = initializeProgressBar(modal)
-      initializeTemporaryData()
       showModal()
     }
 
@@ -281,10 +251,6 @@ module.exports = function () {
         duration: 200,
         easing: 'ease-in-out'
       })
-
-      // modal.on('animationend', function() {
-      //   submitOrder(progressBar, dataObject)
-      // })
     }
   }
 
@@ -294,30 +260,6 @@ module.exports = function () {
     var DataObject = connection.DataObject
 
     return DataObject
-  }
-
-  function initializeTemporaryData () {
-    if (db.object.tempOderData === undefined) {
-      db('tempOderData').push({
-        order: null,
-        tech: db('loggedUser').first().id,
-        customer: null,
-        device: null
-      })
-    } else {
-      // since there no need to have multiple data objects, need to remove
-      // the only object that was created previously
-      db('tempOderData').remove()
-
-      db('tempOderData').push({
-        order: null,
-        tech: db('loggedUser').first().id,
-        customer: null,
-        device: null
-      })
-    }
-
-    return null
   }
 
   function initializeProgressBar (parent) {
@@ -353,7 +295,16 @@ module.exports = function () {
       selection: 0
     }).on('change:selection', function (progressBar, selection) {
       if (selection === 400) {
-        var edison = tabris.ui.find('#edisonlist')
+        // need a reference to the CollectionView widget
+        var edison = tabris.ui.find('#edisonlist')[0]
+        edison.insert([db('tempOderData').first()], 0)
+        edison.reveal(0);
+
+        // clean the temporary sored Data, so we dont have to check if the
+        // data exist and clean it at the start
+        db('tempFormData').remove()
+        db('tempOderData').remove()
+
         setTimeout(showCloseButton, 600)
       }
     }).appendTo(parent)
@@ -438,11 +389,7 @@ module.exports = function () {
 
     DataObject.please().create(order)
       .then(function (order) {
-        db('tempOderData')
-          .chain()
-          .find({ order: null })
-          .assign({ order: order.id })
-          .value()
+        db('tempOderData').push({ order: order })
         var currentSelection = progressBar.get('selection')
         progressBar.set('selection', currentSelection + 100)
       })
@@ -450,8 +397,8 @@ module.exports = function () {
         return DataObject.please().create(device).then(function (device) {
           db('tempOderData')
             .chain()
-            .find({ device: null })
-            .assign({ device: device.id })
+            .first()
+            .assign({ device: device })
             .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
@@ -461,17 +408,32 @@ module.exports = function () {
         return DataObject.please().create(customer).then(function (customer) {
           db('tempOderData')
             .chain()
-            .find({ customer: null })
-            .assign({ customer: customer.id })
+            .first()
+            .assign({ customer: customer })
             .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
         })
       }).then(function () {
-        var edison_store_order = db('tempOderData').first()
-        edison_store_order.instanceName = 'bsrapp'
-        edison_store_order.className = 'edison_store'
-        return DataObject.please().create(edison_store_order).then(function (edison_store_order) {
+        var storeOrder = db('tempOderData').first()
+        var orderData = {
+          order: storeOrder.order.id,
+          tech: db('userInfo').first().id,
+          customer: storeOrder.customer.id,
+          device: storeOrder.device.id,
+          instanceName: 'bsrapp',
+          className: 'edison_store'
+        }
+
+        return DataObject.please().create(orderData).then(function (edisonOrder) {
+          db('tempOderData')
+            .chain()
+            .first()
+            .assign({
+              id: edisonOrder.id,
+              created_at:  edisonOrder.created_at
+            })
+            .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
         })

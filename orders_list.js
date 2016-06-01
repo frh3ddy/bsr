@@ -1,4 +1,3 @@
-// var someData =  require('./data')
 var Syncano = require('./syncano')
 var singleOrder = require('./single_order')
 var db = require('./localStorage')
@@ -10,6 +9,18 @@ var DataEndpoint = connection.DataEndpoint
 var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
 .then(function (dataObjects) {
     if (db('edisonPendingOrders').find()) {
+      dataObjects.objects.forEach(function (el) {
+        // save the promise in a variable so it can be reused and fullfill
+        // when calling value() at the end, and also can be used to determined
+        // if the element was found
+        var findIt = db('edisonPendingOrders').chain().find({id: el.id})
+        if (findIt) {
+          // call value to fulfill the primise and save the data
+          findIt.assign(el).value()
+        } else {
+          db('edisonPendingOrders').push(el)
+        }
+      })
       return true
     } else {
       dataObjects.objects.forEach(function (el) {
@@ -25,12 +36,12 @@ var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName
 
 module.exports = function (page) {
   ready.then(function () {
-    var someData = db('edisonPendingOrders').orderBy('id', 'desc')
+    var data = db('edisonPendingOrders').orderBy('id', 'desc')
     tabris.create('CollectionView', {
       id: 'edisonlist',
       layoutData: {left: 0, top: 0, right: 0, bottom: 0},
-      items: someData,
-      refreshEnabled: true,
+      items: data,
+      refreshEnabled: false,
       itemHeight: 82,
       initializeCell: function (cell) {
         var divider =  tabris.create('Composite', {
@@ -67,10 +78,10 @@ module.exports = function (page) {
         })
       }
     }).on('refresh', function () {
-      var widget = this
-      setTimeout(function () {
-        widget.set('refreshIndicator', false)
-      }, 800)
+      // var widget = this
+      // setTimeout(function () {
+      //   widget.set('refreshIndicator', false)
+      // }, 800)
     }).on('select', function (target, value) {
         singleOrder(value)
     }).appendTo(page)
