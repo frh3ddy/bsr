@@ -1,3 +1,5 @@
+/* global tabris */
+
 var Syncano = require('./syncano')
 var singleOrder = require('./single_order')
 var db = require('./localStorage')
@@ -8,25 +10,25 @@ var DataEndpoint = connection.DataEndpoint
 
 var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
 .then(function (dataObjects) {
-    if (db('edisonPendingOrders').find()) {
-      dataObjects.objects.forEach(function (el) {
-        var findIt = db('edisonPendingOrders').find({id: el.id})
-        if (findIt) {
-          db('edisonPendingOrders')
-            .chain()
-            .find({id: el.id})
-            .assign(el)
-            .value()
-        } else {
-          db('edisonPendingOrders').push(el)
-        }
-      })
-      return true
-    } else {
-      dataObjects.objects.forEach(function (el) {
+  if (db('edisonPendingOrders').find()) {
+    dataObjects.objects.forEach(function (el) {
+      var findIt = db('edisonPendingOrders').find({id: el.id})
+      if (findIt) {
+        db('edisonPendingOrders')
+          .chain()
+          .find({id: el.id})
+          .assign(el)
+          .value()
+      } else {
         db('edisonPendingOrders').push(el)
-      })
-    }
+      }
+    })
+    return true
+  } else {
+    dataObjects.objects.forEach(function (el) {
+      db('edisonPendingOrders').push(el)
+    })
+  }
 
   return true
 })
@@ -44,7 +46,7 @@ module.exports = function (page) {
       refreshEnabled: false,
       itemHeight: 82,
       initializeCell: function (cell) {
-        var divider =  tabris.create('Composite', {
+        var divider = tabris.create('Composite', {
           background: '#d3d3d3'
         }).appendTo(cell)
         var brandImage = tabris.create('ImageView', {
@@ -83,7 +85,7 @@ module.exports = function (page) {
       //   widget.set('refreshIndicator', false)
       // }, 800)
     }).on('select', function (target, value) {
-        singleOrder(value)
+      singleOrder(value)
     }).appendTo(page)
   })
 }

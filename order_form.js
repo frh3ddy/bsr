@@ -1,3 +1,4 @@
+/* global tabris */
 
 var fake = require('./fake')
 var Syncano = require('./syncano')
@@ -297,7 +298,7 @@ module.exports = function () {
       if (selection === 400) {
         var edison = tabris.ui.find('#edisonlist')[0]
         edison.insert([db('tempOderData').first()], 0)
-        edison.reveal(0);
+        edison.reveal(0)
 
         db('tempFormData').remove()
         db('tempOderData').remove()
@@ -425,7 +426,7 @@ module.exports = function () {
           db('tempOderData')
             .chain()
             .first()
-            .assign({ id: edisonOrder.id, created_at:  edisonOrder.created_at})
+            .assign({ id: edisonOrder.id, created_at: edisonOrder.created_at })
             .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)

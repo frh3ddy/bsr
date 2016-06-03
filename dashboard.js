@@ -1,3 +1,5 @@
+/* global tabris */
+
 var orderForm = require('./order_form')
 var Syncano = require('./syncano')
 var login = require('./login')

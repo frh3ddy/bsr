@@ -1,3 +1,5 @@
+/* global tabris */
+
 var ordersList = require('./orders_list')
 var dashboard = require('./dashboard.js')
 

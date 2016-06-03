@@ -1,3 +1,5 @@
+/* global tabris */
+
 var add = require('./single_order_helpers')
 var MARGINLEFT = 10
 

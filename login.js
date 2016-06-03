@@ -1,3 +1,5 @@
+/* global tabris */
+
 var Syncano = require('./syncano')
 var db = require('./localStorage')
 var connection = Syncano({apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'})
