@@ -1,5 +1,6 @@
 /* global tabris */
 
+var h = require('./helpers')
 var Syncano = require('./syncano')
 var db = require('./localStorage')
 var connection = Syncano({apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'})
@@ -62,10 +63,12 @@ module.exports = function () {
         var headerContainer = tabris.ui.find('#Login')
         var userInfo = tabris.ui.find('#user-info')
         var userName = tabris.ui.find('#user-name')
+        var userLocation = tabris.ui.find('#user-location')
 
         headerContainer.set('opacity', 0)
         userInfo.set('opacity', 1)
-        userName.set('text', 'Tech: ' + response.username)
+        userName.set('text', 'Tech: ' + h.capitalize(response.username))
+        userLocation.set('text', 'Location: ' + response.groups[0].label)
         page.close()
       })
       .catch(function (error) {

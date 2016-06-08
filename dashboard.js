@@ -1,16 +1,27 @@
 /* global tabris */
-
 var orderForm = require('./order_form')
+var h = require('./helpers')
 var Syncano = require('./syncano')
 var login = require('./login')
 var db = require('./localStorage')
+var r = require('./realtime')
+var API_KEY = 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'
+var realTime = {
+  init: function () {
+      var USER_KEY = db('userInfo').first().user_key
+      var group = db('userInfo').first().profile.default_group
+      r(USER_KEY, API_KEY, group).start()
 
-var connection = Syncano({apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'})
+  }
+}
+
+var connection = Syncano({apiKey: API_KEY})
 
 function initDashboard (tab) {
   authenticate().then(function (response) {
     if (response === true) {
       showUserInfo()
+      realTime.init()
     } else {
       showLoginButton()
     }
@@ -43,8 +54,9 @@ function initDashboard (tab) {
     font: '16px'
   }).appendTo(userContainer)
 
-  new tabris.TextView({
-    text: 'Location: Edison',
+  var userLocation = new tabris.TextView({
+    id: 'user-location',
+    text: '',
     alignment: 'center',
     layoutData: {top: ['prev()', 8], left: 25, right: 25},
     font: '16px'
@@ -229,8 +241,11 @@ function initDashboard (tab) {
   }
 
   function showUserInfo () {
-    var name = db('userInfo').first().username
+    var user = db('userInfo').first()
+    var name = h.capitalize(user.username)
+    var location = h.capitalize(user.profile.default_group)
     userName.set('text', 'Tech: ' + name)
+    userLocation.set('text', 'Location: ' + location)
     userContainer.animate({
       opacity: 1
     }, {
