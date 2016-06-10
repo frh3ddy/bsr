@@ -39,7 +39,7 @@ var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName
 module.exports = function (page) {
   ready.then(function () {
     var data = db('edisonPendingOrders').orderBy('id', 'desc')
-    tabris.create('CollectionView', {
+    new tabris.CollectionView({
       id: 'edisonlist',
       layoutData: {left: 0, top: 0, right: 0, bottom: 0},
       items: data,

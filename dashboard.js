@@ -1,4 +1,4 @@
-/* global tabris */
+/* global tabris*/
 var orderForm = require('./order_form')
 var h = require('./helpers')
 var Syncano = require('./syncano')
@@ -8,10 +8,9 @@ var r = require('./realtime')
 var API_KEY = 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'
 var realTime = {
   init: function () {
-      var USER_KEY = db('userInfo').first().user_key
-      var group = db('userInfo').first().profile.default_group
-      r(USER_KEY, API_KEY, group).start()
-
+    var USER_KEY = db('userInfo').first().user_key
+    var group = db('userInfo').first().profile.default_group
+    r(USER_KEY, API_KEY, group).start()
   }
 }
 
@@ -32,7 +31,7 @@ function initDashboard (tab) {
     left: 0, right: 0, top: 0, bottom: 0
   }).appendTo(tab)
 
-  var image = new tabris.ImageView({
+  new tabris.ImageView({
     id: 'tech',
     image: {src: 'images/tech_profile.png', scale: 3},
     layoutData: {top: 8, left: 8},
@@ -259,7 +258,7 @@ function authenticate () {
   if (db('userInfo').find()) {
     return login()
   } else {
-    // the caller is especting a promise
+    // the caller is expecting a promise
     return Promise.resolve(false)
   }
 
@@ -270,7 +269,7 @@ function authenticate () {
       .then(function (response) {
         return true
       })
-      .catch(function (error) {
+      .catch(function () { // If error
         db('userInfo').remove()
         return false
       })

@@ -415,6 +415,7 @@ module.exports = function () {
         var storeOrder = db('tempOderData').first()
         var orderData = {
           order: storeOrder.order.id,
+          channel: 'iselin',
           tech: db('userInfo').first().id,
           customer: storeOrder.customer.id,
           device: storeOrder.device.id,
