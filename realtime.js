@@ -1,6 +1,26 @@
 /* global tabris */
 
 var Syncano = require('./syncano')
+var db = require('./localStorage')
+
+var connection = Syncano({apiKey: '5d8c314a9d3642d75466d780c433ef563a8cc98c'})
+var DataEndpoint = connection.DataEndpoint
+
+function getData (id) {
+  db('check').push({})
+  DataEndpoint.please().fetchData({name: 'realtime_edison_create', instanceName: 'bsrapp'})
+  .then(function (dataObjects) {
+    var data = dataObjects.objects.filter(function (el) {
+      return el.id === id
+    })
+    var collectionView = tabris.ui.find('#edisonlist')[0]
+    collectionView.insert(data, 0)
+    collectionView.reveal(0)
+  })
+  .catch(function (error) {
+    console.log('DataEndpoint::: fail', error)
+  })
+}
 
 module.exports = function (userKey, apiKey, group) {
   var connection = Syncano({ userKey: userKey, apiKey: apiKey })
@@ -13,24 +33,28 @@ module.exports = function (userKey, apiKey, group) {
 
   var poll = Channel.please().poll(query)
 
-  poll.on('start', function () {
-    console.log('poll::start')
-  })
+  // poll.on('start', function () {
+  //   console.log('poll::start')
+  // })
+  //
+  // poll.on('stop', function () {
+  //   console.log('poll::stop')
+  // })
 
-  poll.on('stop', function () {
-    console.log('poll::stop')
-  })
+  // poll.on('message', function (message) {
+  //   console.log('poll::message', message)
+  // })
 
-  poll.on('message', function (message) {
-    console.log('poll::message', message)
-  })
-
-  poll.on('custom', function (message) {
-    console.log('poll::custom', message)
-  })
+  // poll.on('custom', function (message) {
+  //   console.log('poll::custom', message)
+  // })
 
   poll.on('create', function (data) {
-    console.log('poll::create', data)
+    if (db('check').first() === undefined) {
+      getData(data.payload.id)
+    } else {
+      db('check').remove()
+    }
   })
 
   poll.on('delete', function (data) {

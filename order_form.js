@@ -296,10 +296,6 @@ module.exports = function () {
       selection: 0
     }).on('change:selection', function (progressBar, selection) {
       if (selection === 400) {
-        var edison = tabris.ui.find('#edisonlist')[0]
-        edison.insert([db('tempOderData').first()], 0)
-        edison.reveal(0)
-
         db('tempFormData').remove()
         db('tempOderData').remove()
         setTimeout(showCloseButton, 600)
@@ -384,12 +380,11 @@ module.exports = function () {
       className: 'device'
     }
 
-    DataObject.please().create(order)
-      .then(function (order) {
-        db('tempOderData').push({ order: order })
-        var currentSelection = progressBar.get('selection')
-        progressBar.set('selection', currentSelection + 100)
-      })
+    DataObject.please().create(order).then(function (order) {
+      db('tempOderData').push({ order: order })
+      var currentSelection = progressBar.get('selection')
+      progressBar.set('selection', currentSelection + 100)
+    })
       .then(function () {
         return DataObject.please().create(device).then(function (device) {
           db('tempOderData')
@@ -399,6 +394,8 @@ module.exports = function () {
             .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
+        }).catch(function (error) {
+          console.log('order send error::', error)
         })
       })
       .then(function () {
@@ -424,11 +421,6 @@ module.exports = function () {
         }
 
         return DataObject.please().create(orderData).then(function (edisonOrder) {
-          db('tempOderData')
-            .chain()
-            .first()
-            .assign({ id: edisonOrder.id, created_at: edisonOrder.created_at })
-            .value()
           var currentSelection = progressBar.get('selection')
           progressBar.set('selection', currentSelection + 100)
         })
