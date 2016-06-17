@@ -3,7 +3,7 @@
 var Syncano = require('./syncano')
 var db = require('./localStorage')
 
-var connection = Syncano({apiKey: '5d8c314a9d3642d75466d780c433ef563a8cc98c'})
+var connection = Syncano({apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb'})
 var DataEndpoint = connection.DataEndpoint
 
 function getData (id) {
@@ -28,14 +28,14 @@ module.exports = function (userKey, apiKey, group) {
 
   var query = {
     name: group,
-    instanceName: 'bsrapp'
+    instanceName: 'laptopbsr'
   }
 
   var poll = Channel.please().poll(query)
 
-  // poll.on('start', function () {
-  //   console.log('poll::start')
-  // })
+  poll.on('start', function () {
+    console.log('poll::start')
+  })
   //
   // poll.on('stop', function () {
   //   console.log('poll::stop')
@@ -50,11 +50,12 @@ module.exports = function (userKey, apiKey, group) {
   // })
 
   poll.on('create', function (data) {
-    if (db('check').first() === undefined) {
-      getData(data.payload.id)
-    } else {
-      db('check').remove()
-    }
+    console.log('realtime data::', data)
+    // if (db('check').first() === undefined) {
+    //   getData(data.payload.id)
+    // } else {
+    //   db('check').remove()
+    // }
   })
 
   poll.on('delete', function (data) {

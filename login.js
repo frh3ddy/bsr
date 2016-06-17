@@ -3,7 +3,7 @@
 var h = require('./helpers')
 var Syncano = require('./syncano')
 var db = require('./localStorage')
-var connection = Syncano({apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'})
+var connection = Syncano({apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb'})
 
 module.exports = function () {
   var page = new tabris.Page({
@@ -48,7 +48,7 @@ module.exports = function () {
       password: password.get('text')
     }
 
-    connection.User.please().login({instanceName: 'bsrapp'}, credentials)
+    connection.User.please().login({instanceName: 'laptopbsr'}, credentials)
       .then(function (response) {
         if (db.object.userInfo === undefined) {
           response.password = credentials.password

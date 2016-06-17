@@ -5,11 +5,11 @@ var Syncano = require('./syncano')
 var login = require('./login')
 var db = require('./localStorage')
 var r = require('./realtime')
-var API_KEY = 'bae21c7ba933f99dcc2782b27f3676ffdb82b539'
+var API_KEY = '29dd175e36b211889ee4e794fbdb6994be305dfb'
 var realTime = {
   init: function () {
     var USER_KEY = db('userInfo').first().user_key
-    var group = db('userInfo').first().profile.default_group
+    var group = db('userInfo').first().groups[0].label
     r(USER_KEY, API_KEY, group).start()
   }
 }
@@ -36,6 +36,9 @@ function initDashboard (tab) {
     image: {src: 'images/tech_profile.png', scale: 3},
     layoutData: {top: 8, left: 8},
     width: 93
+  }).on('tap', function () {
+    db('edisonPendingOrders').remove()
+    console.log('cleaned')
   }).appendTo(page)
 
   var userContainer = new tabris.Composite({
@@ -242,7 +245,8 @@ function initDashboard (tab) {
   function showUserInfo () {
     var user = db('userInfo').first()
     var name = h.capitalize(user.username)
-    var location = h.capitalize(user.profile.default_group)
+    var group = user.groups[0].label
+    var location = h.capitalize(group)
     userName.set('text', 'Tech: ' + name)
     userLocation.set('text', 'Location: ' + location)
     userContainer.animate({
@@ -265,7 +269,7 @@ function authenticate () {
   function login () {
     var input = db('userInfo').first()
     return connection.User.please()
-      .login({instanceName: 'bsrapp'}, {username: input.username, password: input.password})
+      .login({instanceName: 'laptopbsr'}, {username: input.username, password: input.password})
       .then(function (response) {
         return true
       })

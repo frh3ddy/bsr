@@ -257,7 +257,7 @@ module.exports = function () {
 
   function authenticate () {
     var USER_KEY = db('userInfo').first().user_key
-    var connection = Syncano({ userKey: USER_KEY, apiKey: 'bae21c7ba933f99dcc2782b27f3676ffdb82b539' })
+    var connection = Syncano({ userKey: USER_KEY, apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb' })
     var DataObject = connection.DataObject
 
     return DataObject
@@ -292,12 +292,11 @@ module.exports = function () {
 
     var progressBar = tabris.create('ProgressBar', {
       layoutData: {left: 15, right: 15, centerY: 0},
-      maximum: 400,
+      maximum: 300,
       selection: 0
     }).on('change:selection', function (progressBar, selection) {
-      if (selection === 400) {
+      if (selection === 300) {
         db('tempFormData').remove()
-        db('tempOderData').remove()
         setTimeout(showCloseButton, 600)
       }
     }).appendTo(parent)
@@ -356,77 +355,33 @@ module.exports = function () {
   }
 
   function submitOrder (progressBar, DataObject) {
+    progressBar.set('selection', 100)
     var order = {
       quoted_price: parseInt(db('tempFormData').first().price, 0),
-      instanceName: 'bsrapp',
-      className: 'order'
+      channel: 'iselin',
+      customer: {
+        name: db('tempFormData').first().name,
+        phone_number: db('tempFormData').first().phone
+      },
+      device: {
+        type: 'laptop',
+        brand: db('tempFormData').first().brand,
+        password: db('tempFormData').first().password,
+        issues: db('tempFormData').first().issues,
+        with_charger: db('tempFormData').first().charger
+      },
+      status: 'Order taken',
+      instanceName: 'laptopbsr',
+      className: 'edison_orders'
     }
 
-    var customer = {
-      name: db('tempFormData').first().name,
-      phone_number: db('tempFormData').first().phone,
-      instanceName: 'bsrapp',
-      className: 'customer'
-    }
-
-    var device = {
-      type: 'laptop',
-      brand: db('tempFormData').first().brand,
-      password: db('tempFormData').first().password,
-      issues: db('tempFormData').first().issues,
-      status: 'Order Taken',
-      with_charger: db('tempFormData').first().charger,
-      instanceName: 'bsrapp',
-      className: 'device'
-    }
+    progressBar.set('selection', 200)
 
     DataObject.please().create(order).then(function (order) {
-      db('tempOderData').push({ order: order })
-      var currentSelection = progressBar.get('selection')
-      progressBar.set('selection', currentSelection + 100)
+      progressBar.set('selection', 300)
+    }).catch(function (error) {
+      console.log(error)
     })
-      .then(function () {
-        return DataObject.please().create(device).then(function (device) {
-          db('tempOderData')
-            .chain()
-            .first()
-            .assign({ device: device })
-            .value()
-          var currentSelection = progressBar.get('selection')
-          progressBar.set('selection', currentSelection + 100)
-        }).catch(function (error) {
-          console.log('order send error::', error)
-        })
-      })
-      .then(function () {
-        return DataObject.please().create(customer).then(function (customer) {
-          db('tempOderData')
-            .chain()
-            .first()
-            .assign({ customer: customer })
-            .value()
-          var currentSelection = progressBar.get('selection')
-          progressBar.set('selection', currentSelection + 100)
-        })
-      }).then(function () {
-        var storeOrder = db('tempOderData').first()
-        var orderData = {
-          order: storeOrder.order.id,
-          channel: 'iselin',
-          tech: db('userInfo').first().id,
-          customer: storeOrder.customer.id,
-          device: storeOrder.device.id,
-          instanceName: 'bsrapp',
-          className: 'edison_store'
-        }
-
-        return DataObject.please().create(orderData).then(function (edisonOrder) {
-          var currentSelection = progressBar.get('selection')
-          progressBar.set('selection', currentSelection + 100)
-        })
-      }).catch(function (error) {
-        console.log(error)
-      })
   }
 
   page.open()
