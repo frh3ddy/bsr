@@ -3,6 +3,7 @@
   "description": "bsr!",
   "main": "main.js",
   "dependencies": {
+    "moment": "^2.13.0",
     "tabris": "^1.7.0"
   }
 }

@@ -1,6 +1,7 @@
 /* global tabris */
 
 var add = require('./single_order_helpers')
+var moment = require('moment')
 var MARGINLEFT = 10
 
 function orderPage (order) {
@@ -131,7 +132,7 @@ function orderPage (order) {
   add.editableGroup({
     parent: deviceInfoSection,
     label: 'Current Status',
-    bodyText: order.device.status
+    bodyText: order.status
   })
 
   add.line({parent: deviceInfoSection})
@@ -162,7 +163,7 @@ function orderPage (order) {
   var orderDateText = tabris.create('TextView', {
     font: '16px',
     textColor: '#252c41',
-    text: order.created_at,
+    text: moment(order.created_at).fromNow(),
     layoutData: {top: [orderDateLabel, 6], left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection)
 
@@ -178,7 +179,7 @@ function orderPage (order) {
   tabris.create('TextView', {
     font: '16px',
     textColor: '#252c41',
-    text: '$' + order.order.quoted_price + '.00',
+    text: '$' + order.quoted_price + '.00',
     layoutData: {top: [orderQuotedPriceLabel, 6], left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection)
 

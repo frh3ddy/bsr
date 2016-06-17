@@ -6,12 +6,16 @@ var db = require('./localStorage')
 var MARGIN = 12
 
 var connection = Syncano({apiKey: '5d8c314a9d3642d75466d780c433ef563a8cc98c'})
-var DataEndpoint = connection.DataEndpoint
+var DataObject = connection.DataObject
 
-var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName: 'bsrapp'})
-.then(function (dataObjects) {
+var query = {
+  instanceName: 'laptopbsr',
+  className: 'edison_orders'
+}
+
+var ready = DataObject.please().list(query).then(function (data, rawData) {
   if (db('edisonPendingOrders').find()) {
-    dataObjects.objects.forEach(function (el) {
+    rawData.objects.forEach(function (el) {
       var findIt = db('edisonPendingOrders').find({id: el.id})
       if (findIt) {
         db('edisonPendingOrders')
@@ -25,7 +29,7 @@ var ready = DataEndpoint.please().fetchData({name: 'edison_orders', instanceName
     })
     return true
   } else {
-    dataObjects.objects.forEach(function (el) {
+    rawData.objects.forEach(function (el) {
       db('edisonPendingOrders').push(el)
     })
   }
@@ -69,7 +73,7 @@ module.exports = function (page) {
           brandImage.set('image', 'images/' + item.device.brand.toLowerCase() + '.png')
           customerName.set('text', '<strong>' + item.customer.name + '</strong>')
           dateOrdered.set('text', item.device.brand)
-          deviceStatus.set('text', item.device.status)
+          deviceStatus.set('text', item.status)
         }).on('resize', function () {
           var cellWidth = cell.get('bounds').width
           var textWidth = 200

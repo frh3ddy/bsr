@@ -3,23 +3,11 @@
 var Syncano = require('./syncano')
 var db = require('./localStorage')
 
-var connection = Syncano({apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb'})
-var DataEndpoint = connection.DataEndpoint
-
-function getData (id) {
+function saveData (data) {
   db('check').push({})
-  DataEndpoint.please().fetchData({name: 'realtime_edison_create', instanceName: 'bsrapp'})
-  .then(function (dataObjects) {
-    var data = dataObjects.objects.filter(function (el) {
-      return el.id === id
-    })
-    var collectionView = tabris.ui.find('#edisonlist')[0]
-    collectionView.insert(data, 0)
-    collectionView.reveal(0)
-  })
-  .catch(function (error) {
-    console.log('DataEndpoint::: fail', error)
-  })
+  var collectionView = tabris.ui.find('#edisonlist')[0]
+  collectionView.insert([data], 0)
+  collectionView.reveal(0)
 }
 
 module.exports = function (userKey, apiKey, group) {
@@ -50,12 +38,11 @@ module.exports = function (userKey, apiKey, group) {
   // })
 
   poll.on('create', function (data) {
-    console.log('realtime data::', data)
-    // if (db('check').first() === undefined) {
-    //   getData(data.payload.id)
-    // } else {
-    //   db('check').remove()
-    // }
+    if (db('check').first() === undefined) {
+      saveData(data.payload)
+    } else {
+      db('check').remove()
+    }
   })
 
   poll.on('delete', function (data) {
