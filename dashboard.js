@@ -17,6 +17,8 @@ tabris.app.on('pause', function () {
     var message = {'content': 'hello!'}
 
     Channel.please().publish(null, message).then(function () {})
+
+    setTimeout(function () { console.log('timeout::') }, 2000)
   }
 }).on('resume', function () {
   realTime.initPoll()
