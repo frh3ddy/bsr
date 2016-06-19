@@ -4,15 +4,24 @@ var h = require('./helpers')
 var Syncano = require('./syncano')
 var login = require('./login')
 var db = require('./localStorage')
-var r = require('./realtime')
+var realTime = require('./realtime')
 var API_KEY = '29dd175e36b211889ee4e794fbdb6994be305dfb'
-var realTime = {
-  init: function () {
-    var USER_KEY = db('userInfo').first().user_key
-    var group = db('userInfo').first().groups[0].label
-    r(USER_KEY, API_KEY, group).start()
+
+tabris.app.on('pause', function () {
+  if (realTime.getPoll() !== null) {
+    realTime.getPoll().stop()
   }
-}
+
+  if (realTime.Channel() !== null) {
+    var Channel = realTime.Channel()
+    var message = {'content': 'hello!'}
+
+    Channel.please().publish(null, message).then(function () {})
+  }
+}).on('resume', function () {
+  realTime.initPoll()
+  realTime.getPoll().start()
+})
 
 var connection = Syncano({apiKey: API_KEY})
 
@@ -20,7 +29,8 @@ function initDashboard (tab) {
   authenticate().then(function (response) {
     if (response === true) {
       showUserInfo()
-      realTime.init()
+      realTime.initPoll()
+      realTime.getPoll().start()
     } else {
       showLoginButton()
     }
@@ -69,6 +79,7 @@ function initDashboard (tab) {
     font: '12px',
     layoutData: {top: ['prev()', 8], bottom: 0, left: 25, right: 25}
   }).on('select', function () {
+    realTime.getPoll().stop()
     showLoginButton()
     this.parent().animate({
       opacity: 0

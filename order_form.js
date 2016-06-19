@@ -1,8 +1,8 @@
 /* global tabris */
 
 var fake = require('./fake')
-var Syncano = require('./syncano')
 var db = require('./localStorage')
+var connection = require('./authenticate')
 
 module.exports = function () {
   db('tempFormData').push({})
@@ -256,11 +256,11 @@ module.exports = function () {
   }
 
   function authenticate () {
-    var USER_KEY = db('userInfo').first().user_key
-    var connection = Syncano({ userKey: USER_KEY, apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb' })
-    var DataObject = connection.DataObject
+    if (connection.DataObject() === null) {
+      connection.init()
+    }
 
-    return DataObject
+    return connection.DataObject()
   }
 
   function initializeProgressBar (parent) {

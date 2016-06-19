@@ -1,5 +1,5 @@
 /* global tabris */
-
+var realTime = require('./realtime')
 var h = require('./helpers')
 var Syncano = require('./syncano')
 var db = require('./localStorage')
@@ -60,6 +60,10 @@ module.exports = function () {
           db('userInfo').remove()
           db('userInfo').push(response)
         }
+
+        realTime.initPoll()
+        realTime.getPoll().start()
+
         var headerContainer = tabris.ui.find('#Login')
         var userInfo = tabris.ui.find('#user-info')
         var userName = tabris.ui.find('#user-name')
