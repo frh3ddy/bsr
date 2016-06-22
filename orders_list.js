@@ -19,40 +19,53 @@ if (db('userInfo').first() !== undefined) {
     className: 'edison_orders'
   }
 
-  DataObject.please().list(query).then(function (data, rawData) {
+  var saved =  DataObject.please().list(query).then(function (data, rawData) {
+
     if (db('edisonPendingOrders').find()) {
-      rawData.objects.forEach(function (el) {
-        var findIt = db('edisonPendingOrders').find({id: el.id})
-        if (findIt) {
-          db('edisonPendingOrders')
-            .chain()
-            .find({id: el.id})
-            .assign(el)
-            .value()
-        } else {
-          db('edisonPendingOrders').push(el)
-        }
+      var tete = db('edisonPendingOrders')
+      tete.forEach(function (el) {
+        console.log('jju' , el)
       })
+      return rawData.objects
     } else {
-      rawData.objects.forEach(function (el) {
-        db('edisonPendingOrders').push(el)
-      })
+      db('edisonPendingOrders').push({n: 1})
+      db('edisonPendingOrders').push({n: 1})
+      db('edisonPendingOrders').push({n: 1})
+      db('edisonPendingOrders').push({n: 1})
+      // rawData.objects.map(function (el) {
+      //   console.log('::::', typeof el)
+      //   db('edisonPendingOrders').push({n: 1})
+      // })
+
+      return rawData.objects
     }
+    // if (db('edisonPendingOrders').find()) {
+    //   rawData.objects.forEach(function (el) {
+    //     var findIt = db('edisonPendingOrders').find({id: el.id})
+    //     if (findIt) {
+    //       db('edisonPendingOrders')
+    //         .chain()
+    //         .find({id: el.id})
+    //         .assign(el)
+    //         .value()
+    //     } else {
+    //       db('edisonPendingOrders').push(el)
+    //     }
+    //   })
+    // } else {
+    //   rawData.objects.forEach(function (el) {
+    //     db('edisonPendingOrders').push(el)
+    //   })
+    // }
   })
   .catch(function (error) {
     console.log(error)
   })
 }
 
-module.exports = function (page) {
-  var data
-  if (db('edisonPendingOrders').first() !== undefined) {
-    data = db('edisonPendingOrders').orderBy('id', 'desc')
-  } else {
-    data = []
-    db('edisonPendingOrders').push(null)
-  }
-
+function initCollectionList(items, page) {
+  // console.log('inside itemco::', items)
+  var data = items
   new tabris.CollectionView({
     id: 'edisonlist',
     layoutData: {left: 0, top: 0, right: 0, bottom: 0},
@@ -94,11 +107,19 @@ module.exports = function (page) {
       })
     }
   }).on('refresh', function () {
-    // var widget = this
-    // setTimeout(function () {
-    //   widget.set('refreshIndicator', false)
-    // }, 800)
+
   }).on('select', function (target, value) {
     singleOrder(value)
   }).appendTo(page)
+}
+
+module.exports = function (page) {
+  if (db('userInfo').first() !== undefined){
+    saved.then(function (data) {
+      initCollectionList(data, page)
+    })
+  } else {
+    initCollectionList([], page)
+  }
+
 }

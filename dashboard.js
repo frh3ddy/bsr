@@ -81,7 +81,17 @@ function initDashboard (tab) {
     font: '12px',
     layoutData: {top: ['prev()', 8], bottom: 0, left: 25, right: 25}
   }).on('select', function () {
-    realTime.getPoll().stop()
+    if (realTime.getPoll() !== null && realTime.Channel() !== null) {
+      realTime.getPoll().stop()
+
+      var Channel = realTime.Channel()
+      var message = {'content': 'hello!'}
+
+      Channel.please().publish(null, message).then(function () {})
+    }
+
+    tabris.app.off('pause').off('resume')
+
     showLoginButton()
     this.parent().animate({
       opacity: 0
