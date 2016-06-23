@@ -1,6 +1,8 @@
 /* global tabris */
 
 var singleOrder = require('./single_order')
+var moment = require('moment')
+var h = require('./helpers')
 var db = require('./localStorage')
 var connection = require('./authenticate')
 var MARGIN = 12
@@ -19,23 +21,24 @@ if (db('userInfo').first() !== undefined) {
     className: 'edison_orders'
   }
 
-  var saved =  DataObject.please().list(query).then(function (data, rawData) {
-
-    if (db('edisonPendingOrders').find()) {
-      var tete = db('edisonPendingOrders')
-      tete.forEach(function (el) {
-        console.log('jju' , el)
+  var saved = DataObject.please().list(query).then(function (data, rawData) {
+    if (db('repairOrders').find()) {
+      var orders = db('repairOrders').orderBy('id', 'desc')
+      var recentUpdated = orders.map(function (el) {
+        return el.unixDate
       })
+
+      console.log(h.getMax(recentUpdated))
+      // tete.forEach(function (el) {
+      //   console.log('jju' , el)
+      // })
       return rawData.objects
     } else {
-      db('edisonPendingOrders').push({n: 1})
-      db('edisonPendingOrders').push({n: 1})
-      db('edisonPendingOrders').push({n: 1})
-      db('edisonPendingOrders').push({n: 1})
-      // rawData.objects.map(function (el) {
-      //   console.log('::::', typeof el)
-      //   db('edisonPendingOrders').push({n: 1})
-      // })
+      rawData.objects.map(function (el) {
+        var order = el
+        order.unixDate = parseInt(moment(el.updated_at).format('x'), 10)
+        db('repairOrders').push(order)
+      })
 
       return rawData.objects
     }
@@ -63,7 +66,7 @@ if (db('userInfo').first() !== undefined) {
   })
 }
 
-function initCollectionList(items, page) {
+function initCollectionList (items, page) {
   // console.log('inside itemco::', items)
   var data = items
   new tabris.CollectionView({
@@ -114,12 +117,11 @@ function initCollectionList(items, page) {
 }
 
 module.exports = function (page) {
-  if (db('userInfo').first() !== undefined){
+  if (db('userInfo').first() !== undefined) {
     saved.then(function (data) {
       initCollectionList(data, page)
     })
   } else {
     initCollectionList([], page)
   }
-
 }

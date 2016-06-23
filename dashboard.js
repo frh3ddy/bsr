@@ -21,8 +21,10 @@ tabris.app.on('pause', function () {
     setTimeout(function () { console.log('timeout::') }, 2000)
   }
 }).on('resume', function () {
-  realTime.initPoll()
-  realTime.getPoll().start()
+  if (db('userInfo').first() !== undefined) {
+    realTime.initPoll()
+    realTime.getPoll().start()
+  }
 })
 
 var connection = Syncano({apiKey: API_KEY})
@@ -49,7 +51,7 @@ function initDashboard (tab) {
     layoutData: {top: 8, left: 8},
     width: 93
   }).on('tap', function () {
-    db('edisonPendingOrders').remove()
+    db('repairOrders').remove()
     console.log('cleaned')
   }).appendTo(page)
 
@@ -81,15 +83,18 @@ function initDashboard (tab) {
     font: '12px',
     layoutData: {top: ['prev()', 8], bottom: 0, left: 25, right: 25}
   }).on('select', function () {
+    // Make sure Realtime is initialized
     if (realTime.getPoll() !== null && realTime.Channel() !== null) {
       realTime.getPoll().stop()
 
       var Channel = realTime.Channel()
       var message = {'content': 'hello!'}
 
+      // Need to send a message so its the last one, to stop the channel
       Channel.please().publish(null, message).then(function () {})
     }
 
+    // Remove the event handlers
     tabris.app.off('pause').off('resume')
 
     showLoginButton()
