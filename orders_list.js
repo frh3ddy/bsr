@@ -2,10 +2,15 @@
 
 var singleOrder = require('./single_order')
 var moment = require('moment')
-var h = require('./helpers')
 var db = require('./localStorage')
 var connection = require('./authenticate')
 var MARGIN = 12
+var saved = null
+
+var query = {
+  instanceName: 'laptopbsr',
+  className: 'edison_orders'
+}
 
 if (db('userInfo').first() !== undefined) {
   var DataObject = null
@@ -16,54 +21,46 @@ if (db('userInfo').first() !== undefined) {
     DataObject = connection.DataObject()
   }
 
-  var query = {
-    instanceName: 'laptopbsr',
-    className: 'edison_orders'
-  }
+  if (db('repairOrders').find() && db('repairOrders').size() > 0) {
+    // Need just the last one
+    var order = db('repairOrders').orderBy('unixDate', 'asc').pop()
 
-  var saved = DataObject.please().list(query).then(function (data, rawData) {
-    if (db('repairOrders').find()) {
-      var orders = db('repairOrders').orderBy('id', 'desc')
-      var recentUpdated = orders.map(function (el) {
-        return el.unixDate
-      })
+    var filter = {'updated_at': {'_gt': order.updated_at}}
 
-      console.log(h.getMax(recentUpdated))
-      // tete.forEach(function (el) {
-      //   console.log('jju' , el)
-      // })
-      return rawData.objects
-    } else {
+    saved = DataObject.please().list(query).filter(filter).then(function (data, rawData) {
+      if (rawData.objects.length > 0) {
+        rawData.objects.forEach(function (el) {
+          var findIt = db('repairOrders').find({id: el.id})
+          if (findIt) {
+            db('repairOrders')
+            .chain()
+            .find({id: el.id})
+            .assign(el)
+            .value()
+          } else {
+            db('repairOrders').push(el)
+          }
+        })
+      }
+
+      return db('repairOrders').orderBy('unixDate', 'desc')
+    })
+    .catch(function (error) {
+      console.log(error)
+    })
+  } else {
+    saved = DataObject.please().list(query).then(function (data, rawData) {
       rawData.objects.map(function (el) {
         var order = el
         order.unixDate = parseInt(moment(el.updated_at).format('x'), 10)
         db('repairOrders').push(order)
       })
-
       return rawData.objects
-    }
-    // if (db('edisonPendingOrders').find()) {
-    //   rawData.objects.forEach(function (el) {
-    //     var findIt = db('edisonPendingOrders').find({id: el.id})
-    //     if (findIt) {
-    //       db('edisonPendingOrders')
-    //         .chain()
-    //         .find({id: el.id})
-    //         .assign(el)
-    //         .value()
-    //     } else {
-    //       db('edisonPendingOrders').push(el)
-    //     }
-    //   })
-    // } else {
-    //   rawData.objects.forEach(function (el) {
-    //     db('edisonPendingOrders').push(el)
-    //   })
-    // }
-  })
-  .catch(function (error) {
-    console.log(error)
-  })
+    })
+    .catch(function (error) {
+      console.log(error)
+    })
+  }
 }
 
 function initCollectionList (items, page) {
