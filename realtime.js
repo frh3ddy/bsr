@@ -52,13 +52,11 @@ function initPoll () {
   })
 
   poll.on('update', function (data) {
-    console.log('update::', data)
-    // var items = tabris.ui.find('#edisonlist')[0].get('items')
-    // var Collection = {
-    //   update: function (i) {
-    //     items[1] = data
-    //   }
-    // }
+    if (db('check').first() === undefined) {
+      updateCollection(data.payload)
+    } else {
+      db('check').remove()
+    }
   })
 
   poll.on('error', function (error) {
@@ -76,9 +74,21 @@ function getChannel () {
 
 function saveData (data) {
   db('check').push({})
+  db('repairOrders').push(data)
   var collectionView = tabris.ui.find('#edisonlist')[0]
   collectionView.insert([data], 0)
   collectionView.reveal(0)
+}
+
+function updateCollection (data) {
+  db('check').push({})
+  db('repairOrders')
+  .chain()
+  .find({id: data.id})
+  .assign(data)
+  .value()
+  var collectionView = tabris.ui.find('#edisonlist')[0]
+  collectionView.refresh()
 }
 
 module.exports = {
