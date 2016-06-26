@@ -108,7 +108,7 @@ module.exports = function () {
 
   tabris.create('Picker', {
     id: 'brandPicker',
-    items: ['Select Brand', 'Acer', 'Apple', 'Asus']
+    items: ['Select Brand', 'Acer', 'Apple', 'Asus', 'Dell', 'Hp', 'Lenovo', 'Samsung', 'Sony']
   }).on('change:selection', function (widget, selection) {
     db('tempFormData')
       .chain()

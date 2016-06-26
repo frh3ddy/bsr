@@ -9,7 +9,7 @@ function createEditableGroup (props) {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-    editIssues(props.data)
+    editIssues(props.data, editableText)
   }).appendTo(props.parent)
 
   tabris.create('TextView', {
@@ -19,7 +19,7 @@ function createEditableGroup (props) {
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
   }).appendTo(container)
 
-  tabris.create('TextView', {
+  var editableText = tabris.create('TextView', {
     text: props.bodyText,
     font: '16px',
     textColor: '#252c41',
