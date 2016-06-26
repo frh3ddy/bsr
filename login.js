@@ -3,6 +3,7 @@ var realTime = require('./realtime')
 var h = require('./helpers')
 var Syncano = require('./syncano')
 var db = require('./localStorage')
+var collectionList = require('./collectionList')
 var connection = Syncano({apiKey: '29dd175e36b211889ee4e794fbdb6994be305dfb'})
 
 module.exports = function () {
@@ -61,6 +62,7 @@ module.exports = function () {
           db('userInfo').push(response)
         }
 
+        collectionList()
         realTime.initPoll()
         realTime.getPoll().start()
 

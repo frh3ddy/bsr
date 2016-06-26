@@ -2,6 +2,7 @@
 
 var ordersList = require('./orders_list')
 var dashboard = require('./dashboard.js')
+// var test = require('./editIssues')
 
 var page = new tabris.Page({
   title: 'Dashboard',

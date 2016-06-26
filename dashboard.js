@@ -2,6 +2,7 @@
 var orderForm = require('./order_form')
 var h = require('./helpers')
 var Syncano = require('./syncano')
+var collectionList = require('./collectionList')
 var login = require('./login')
 var db = require('./localStorage')
 var realTime = require('./realtime')
@@ -22,6 +23,7 @@ tabris.app.on('pause', function () {
   }
 }).on('resume', function () {
   if (db('userInfo').first() !== undefined) {
+    collectionList()
     realTime.initPoll()
     realTime.getPoll().start()
   }
@@ -96,6 +98,10 @@ function initDashboard (tab) {
 
     // Remove the event handlers
     tabris.app.off('pause').off('resume')
+
+    // Reset collection list view
+    var collectionView = tabris.ui.find('#edisonlist')[0]
+    collectionView.set('items', [])
 
     showLoginButton()
     this.parent().animate({
@@ -250,6 +256,7 @@ function initDashboard (tab) {
   }).appendTo(deliveryContainerItemSecond)
 
   function showLoginButton () {
+    db('userInfo').remove()
     var hasParent = headerContainer.parent()
     if (hasParent) {
       headerContainer.animate({
@@ -266,7 +273,6 @@ function initDashboard (tab) {
         duration: 200,
         easing: 'ease-out'
       })
-      db('userInfo').remove()
     }
   }
 

@@ -1,5 +1,7 @@
 /* global tabris */
 
+var editIssues = require('./editIssues')
+
 var MARGINLEFT = 10
 
 function createEditableGroup (props) {
@@ -7,10 +9,7 @@ function createEditableGroup (props) {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-    var page = tabris.create('Page', {
-      title: 'Edit ' + props.label
-    })
-    page.open()
+    editIssues(props.data)
   }).appendTo(props.parent)
 
   tabris.create('TextView', {
