@@ -1,6 +1,7 @@
 /* global tabris */
 
 var editIssues = require('./editIssues')
+var updateStatus = require('./updateStatus')
 
 var MARGINLEFT = 10
 
@@ -9,7 +10,16 @@ function createEditableGroup (props) {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-    editIssues(props.data, editableText)
+    switch (props.case) {
+      case 'issues':
+          editIssues(props.data, editableText)
+          break;
+      case 'status':
+          updateStatus(props.data, editableText)
+          break;
+      default:
+          console.log('something when wrong')
+    }
   }).appendTo(props.parent)
 
   tabris.create('TextView', {
@@ -27,7 +37,7 @@ function createEditableGroup (props) {
   }).appendTo(container)
 
   tabris.create('ImageView', {
-    image: {src: 'http://www.5dollarperfume.com/images/menGiftSets/view_more.png', scale: 3},
+    image: {src: 'images/view_more.png', scale: 3},
     layoutData: {right: 20},
     centerY: 0
   }).appendTo(container)

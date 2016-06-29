@@ -8,29 +8,31 @@ function init (data, widget) {
   })
   var input = new tabris.TextInput({
     type: 'multiline',
+    autoCapitalize: true,
+    autoCorrect: true,
     text: data.device.issues,
     layoutData: {top: 20, left: '5%', right: '20%', height: 100}
   }).on('input', function (widget, text) {
     if (text.length <= 0) {
       clearButton.set('enabled', false)
-      clearButton.set('tintColor', '#E03C31')
+      clearButton.set('tintColor', '#d3e0f7')
       saveButton.set('enabled', false)
     } else {
       clearButton.set('enabled', true)
-      clearButton.set('tintColor', 'red')
       saveButton.set('enabled', true)
+      clearButton.set('tintColor', '#282c37')
     }
   }).appendTo(page)
 
   var clearButton = new tabris.ImageView({
-    text: 'Clear',
     image: {src: 'images/clear.png', scale: 3},
     layoutData: {top: 90, left: [input, 10], right: 10},
     enabled: true,
-    tintColor: 'red'
+    tintColor: '#282c37'
   }).on('tap', function () {
     input.set('text', '')
     this.set('enabled', false)
+    clearButton.set('tintColor', '#d3e0f7')
     saveButton.set('enabled', false)
   }).appendTo(page)
 

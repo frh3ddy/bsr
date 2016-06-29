@@ -25,6 +25,7 @@ module.exports = function () {
   tabris.create('TextInput', {
     id: 'customerNameInput',
     text: '',
+    autoCapitalize: true,
     message: 'Customer Name'
   }).on('blur', function () {
     db('tempFormData')
@@ -92,7 +93,9 @@ module.exports = function () {
 
   tabris.create('TextInput', {
     id: 'deviceIssuesInput',
-    message: 'Describe Issues'
+    message: 'Describe Issues',
+    autoCapitalize: true,
+    autoCorrect: true
   }).on('blur', function () {
     db('tempFormData')
       .chain()

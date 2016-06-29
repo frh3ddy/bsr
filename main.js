@@ -2,7 +2,7 @@
 
 var ordersList = require('./orders_list')
 var dashboard = require('./dashboard.js')
-// var test = require('./editIssues')
+// var proto = require('./statusPrototype')
 
 var page = new tabris.Page({
   title: 'Dashboard',
@@ -29,7 +29,7 @@ var createTab = function (title, image, content) {
 
 createTab('Dashboard', 'images/dashboard.png', dashboard)
 createTab('Oxford', 'images/Oxford.png', ordersList)
-createTab('Edison', 'images/Edison.png')
+// createTab('Edison', 'images/Edison.png', proto)
 createTab('Mercer', 'images/Mercer.png')
 
 page.open()

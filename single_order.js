@@ -125,7 +125,8 @@ function orderPage (order) {
     parent: deviceInfoSection,
     label: 'Device Issues',
     bodyText: order.device.issues,
-    data: order
+    data: order,
+    case: 'issues'
   })
 
   add.line({parent: deviceInfoSection})
@@ -133,7 +134,9 @@ function orderPage (order) {
   add.editableGroup({
     parent: deviceInfoSection,
     label: 'Current Status',
-    bodyText: order.status
+    bodyText: order.status,
+    data: order,
+    case: 'status'
   })
 
   add.line({parent: deviceInfoSection})
