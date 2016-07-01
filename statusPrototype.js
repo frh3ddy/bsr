@@ -1,6 +1,6 @@
+/* global tabris */
 
 function init (page) {
-
   var scrollView = new tabris.ScrollView({
     layoutData: {top: 0, bottom: 0, left: 0, right: 0}
   }).appendTo(page)
@@ -8,7 +8,7 @@ function init (page) {
   var checkmark = new tabris.ImageView({
     image: {src: 'images/checkmark.png', scale: 3},
     tintColor: '#6d819c',
-    layoutData: {right: 15, centerY: 0}
+    layoutData: {right: 15}
   })
 
   var statusText = new tabris.TextView({
@@ -28,14 +28,14 @@ function init (page) {
     layoutData: {top: 0, left: 0, right: 0, height: 0.5}
   }).appendTo(statusListContainer)
 
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Ready to be shipped to Edison', statusListContainer, checkmark)
-  createStatus('Arrived at edison', statusListContainer, checkmark)
-  createStatus('Ordered and waiting for part', statusListContainer, checkmark)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Ready to be shipped to Edison', statusListContainer)
+  createStatus('Arrived at edison', statusListContainer)
+  createStatus('Ordered and waiting for part', statusListContainer)
 
   new tabris.TextView({
     background: '#dddfe6',
@@ -65,14 +65,14 @@ function init (page) {
     updateButton.set('enabled', true)
   }).appendTo(scrollView)
 
-  var cancelButton = new tabris.Button({
+  new tabris.Button({
     text: 'Cancel',
     background: '#fff',
     top: ['prev()', 20],
     bottom: 20,
     left: 0,
     textColor: 'red',
-    right: 0,
+    right: 0
   }).on('select', function () {
     console.log('Cancelled')
   }).appendTo(scrollView)
@@ -85,13 +85,39 @@ function init (page) {
     if (checkmark.parent() === empty || checkmark.parent() === undefined) {
       console.log(input.get('text'))
     } else if (checkmark.parent()) {
-      console.log(checkmark.parent().children()[0].get('text'))
+      var markupText = checkmark.get('baseline').get('text')
+      var markupRemoved = markupText.split(' ').filter(function (el) {
+        return el !== '<br/>'
+      })
+      console.log(markupRemoved.join(' '))
     }
   })
 
   function createStatus (text, container, checkmark) {
-    var status = new tabris.Composite({
-      layoutData: {top: "prev()", right: 0, left: 15}
+    // var status = new tabris.Composite({
+    //   layoutData: {top: 'prev()', right: 0, left: 15}
+    // }).on('tap', function (widget) {
+    //   widget.animate({
+    //     opacity: 0.2
+    //   }, {
+    //     repeat: 1,
+    //     duration: 300,
+    //     easing: 'ease-out',
+    //     reverse: true
+    //   })
+    //   checkmark.appendTo(widget)
+    //   input.set('text', '')
+    // }).on('addchild', function (widget, child) {
+    //   if (updateButton && child.type === 'ImageView') {
+    //     updateButton.set('enabled', true)
+    //   }
+    // }).appendTo(container)
+
+    new tabris.TextView({
+      text: '<br/> ' + text + ' <br/>',
+      markupEnabled: true,
+      // background: 'blue',
+      layoutData: {top: ['prev()', 5], right: 35, left: 15}
     }).on('tap', function (widget) {
       widget.animate({
         opacity: 0.2
@@ -101,23 +127,17 @@ function init (page) {
         easing: 'ease-out',
         reverse: true
       })
-      checkmark.appendTo(widget)
+
+      checkmark.appendTo(container)
+      checkmark.set('baseline', widget)
+      updateButton.set('enabled', true)
       input.set('text', '')
-    }).on('addchild', function (widget, child) {
-      if (updateButton && child.type === 'ImageView') {
-        updateButton.set('enabled', true)
-      }
     }).appendTo(container)
 
     new tabris.TextView({
-      text: text,
-      layoutData: {top: 15, right: 35, left: 0}
-    }).appendTo(status)
-
-    new tabris.TextView({
       background: '#dddfe6',
-      layoutData: {top: ["prev()", 15], left: 0, right: 0, height: 0.5}
-    }).appendTo(status)
+      layoutData: {top: ['prev()', 5], left: 15, right: 0, height: 0.5}
+    }).appendTo(container)
   }
 }
 

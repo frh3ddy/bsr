@@ -12,13 +12,13 @@ function createEditableGroup (props) {
   }).on('tap', function () {
     switch (props.case) {
       case 'issues':
-          editIssues(props.data, editableText)
-          break;
+        editIssues(props.data, editableText)
+        break
       case 'status':
-          updateStatus(props.data, editableText)
-          break;
+        updateStatus(props.data, editableText)
+        break
       default:
-          console.log('something when wrong')
+        break
     }
   }).appendTo(props.parent)
 

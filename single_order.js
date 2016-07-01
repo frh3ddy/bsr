@@ -46,14 +46,14 @@ function orderPage (order) {
   add.line({parent: customerInfoSection})
 
   var smsIcon = tabris.create('ImageView', {
-    image: {src: 'http://www.5dollarperfume.com/images/menGiftSets/smsIcon.png', scale: 3},
+    image: {src: 'images/smsIcon.png', scale: 3},
     highlightOnTouch: true,
     layoutData: {top: [customerNameText, 16], right: 16}
   }).appendTo(customerInfoSection)
 
   tabris.create('ImageView', {
     highlightOnTouch: true,
-    image: {src: 'http://www.5dollarperfume.com/images/menGiftSets/iconCall.png', scale: 3},
+    image: {src: 'images/iconCall.png', scale: 3},
     layoutData: {top: [customerNameText, 16], right: [smsIcon, 25]}
   }).appendTo(customerInfoSection)
 
