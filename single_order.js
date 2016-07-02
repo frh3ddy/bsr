@@ -189,6 +189,11 @@ function orderPage (order) {
 
   add.line({parent: orderDetailsSection})
 
+  tabris.create('TextView', {
+    layoutData: {top: ['prev()', 6], left: MARGINLEFT, right: 0},
+    height: 20
+  }).appendTo(orderInfoContainer)
+
   page.open()
 }
 

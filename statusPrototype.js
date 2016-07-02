@@ -94,29 +94,9 @@ function init (page) {
   })
 
   function createStatus (text, container, checkmark) {
-    // var status = new tabris.Composite({
-    //   layoutData: {top: 'prev()', right: 0, left: 15}
-    // }).on('tap', function (widget) {
-    //   widget.animate({
-    //     opacity: 0.2
-    //   }, {
-    //     repeat: 1,
-    //     duration: 300,
-    //     easing: 'ease-out',
-    //     reverse: true
-    //   })
-    //   checkmark.appendTo(widget)
-    //   input.set('text', '')
-    // }).on('addchild', function (widget, child) {
-    //   if (updateButton && child.type === 'ImageView') {
-    //     updateButton.set('enabled', true)
-    //   }
-    // }).appendTo(container)
-
     new tabris.TextView({
       text: '<br/> ' + text + ' <br/>',
       markupEnabled: true,
-      // background: 'blue',
       layoutData: {top: ['prev()', 5], right: 35, left: 15}
     }).on('tap', function (widget) {
       widget.animate({
