@@ -1,21 +1,26 @@
 /* global tabris */
 
-var IMAGE_PATH = 'images/'
+var IMAGE_PATH = 'images/computer-parts/'
 var THUMB_SIZE = 48
 var MARGIN = 12
 var ANIMATION_START_DELAY = 200
 
 function init (page) {
   var repairs = [
-  ['LCD', 'Staudacher', 'apple.png'],
-  ['Chargin Port', 'Bull', 'samsung.png'],
-  ['Hard Drive', 'Krause', 'dell.png'],
-  ['Virus Removal', 'Böhme López', 'sony.png'],
-  ['Data Backup', 'Knauer', 'acer.png'],
-  ['Graphic Card', 'Post', 'asus.png'],
-  ['Motherboar Swap', 'Buschtöns', 'hp.png']
+  ['LCD', 'lcd.png'],
+  ['Power Supply', 'power-supply.png'],
+  ['GraphicCard', 'video-card.png'],
+  ['Memory Ram', 'memory-ram.png'],
+  ['Charging Port', 'charging-port.png'],
+  ['Battery', 'battery.png'],
+  ['Hard Drive', 'hard-drive.png'],
+  ['Virus Removal', 'virus.png'],
+  ['Data Recovery', 'data-recovery.png'],
+  ['DVD Drive', 'optical-drive.png'],
+  ['Heat Sink', 'heat-sink.png'],
+  ['Motherboard Swap', 'motherboard.png']
   ].map(function (element) {
-    return {name: element[0], lastName: element[1], image: IMAGE_PATH + element[2]}
+    return {name: element[0], image: IMAGE_PATH + element[1]}
   })
 
   var scrollView = new tabris.ScrollView({
@@ -87,7 +92,7 @@ function init (page) {
     }).appendTo(parent)
     var repairView = new tabris.ImageView({
       layoutData: {left: 0, top: 0, width: thumbsize, height: thumbsize},
-      image: {src: repair.image, width: thumbsize, height: thumbsize}
+      image: {src: repair.image, scale: 3}
     }).appendTo(composite)
 
     new tabris.TextView({
@@ -146,7 +151,8 @@ function init (page) {
       text: 'ADD',
       layoutData: {centerX: 0, centerY: -20, width: 100}
     }).on('select', function () {
-      logIt(input.get('text'))
+      input.siblings('TextView')[0].get('text')
+      logIt([input.get('text'), input.siblings('TextView')[0].get('text')])
     }).insertBefore(widget)
   }
 
