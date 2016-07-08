@@ -1,8 +1,8 @@
 /* global tabris */
 
-// var ordersList = require('./orders_list')
-// var dashboard = require('./dashboard.js')
-var proto = require('./pricePrototype')
+var ordersList = require('./orders_list')
+var dashboard = require('./dashboard.js')
+// var proto = require('./pricePrototype')
 
 var page = new tabris.Page({
   title: 'Dashboard',
@@ -27,9 +27,9 @@ var createTab = function (title, image, content) {
   }
 }
 
-// createTab('Dashboard', 'images/dashboard.png', dashboard)
-// createTab('Oxford', 'images/Oxford.png', ordersList)
-createTab('Edison', 'images/Edison.png', proto)
+createTab('Dashboard', 'images/dashboard.png', dashboard)
+createTab('Oxford', 'images/Oxford.png', ordersList)
+// createTab('Edison', 'images/Edison.png', proto)
 createTab('Mercer', 'images/Mercer.png')
 
 page.open()

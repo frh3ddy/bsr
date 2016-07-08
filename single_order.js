@@ -164,7 +164,7 @@ function orderPage (order) {
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection)
 
-  var orderDateText = tabris.create('TextView', {
+  tabris.create('TextView', {
     font: '16px',
     textColor: '#252c41',
     text: moment(order.created_at).fromNow(),
@@ -173,11 +173,26 @@ function orderPage (order) {
 
   add.line({parent: orderDetailsSection})
 
+  add.price({
+    parent: orderDetailsSection,
+    label: 'Price for Each Repair',
+    bodyText: order.status,
+    data: [
+    ['LCD', 255],
+    ['Power Supply', 250],
+    ['GraphicCard', 199],
+    ['Memory Ram', 455],
+    ['Quoted Price', order.quoted_price]
+    ]
+  })
+
+  add.line({parent: orderDetailsSection})
+
   var orderQuotedPriceLabel = tabris.create('TextView', {
     text: 'Quoted Price',
     font: '11px',
     textColor: '#3ac569',
-    layoutData: {top: [orderDateText, 12], left: MARGINLEFT, right: 0}
+    layoutData: {top: ['prev()', 12], left: MARGINLEFT, right: 0}
   }).appendTo(orderDetailsSection)
 
   tabris.create('TextView', {

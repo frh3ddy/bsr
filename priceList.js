@@ -72,60 +72,7 @@ function createLine (props) {
   return null
 }
 
-function itemPrice (props) {
-  var container = tabris.create('Composite', {
-    layoutData: {top: ['prev()', 0], left: 0, right: 0},
-    highlightOnTouch: true
-  }).on('tap', function () {
-
-  }).appendTo(props.parent)
-
-  tabris.create('TextView', {
-    text: props.label,
-    font: '11px',
-    textColor: '#6E7783',
-    layoutData: {top: 6, left: MARGINLEFT, right: 0}
-  }).appendTo(container)
-
-  props.data.forEach(function (el, index, array) {
-    var content = new tabris.Composite({
-      layoutData: {top: ['prev()', 12], left: MARGINLEFT + 15, right: 40}
-    }).appendTo(container)
-
-    tabris.create('TextView', {
-      text: el[0],
-      font: '16px',
-      textColor: '#252c41',
-      layoutData: {top: 12, left: 0}
-    }).appendTo(content)
-
-    tabris.create('TextView', {
-      text: '$' + el[1] + '.00',
-      font: '16px',
-      textColor: '#252c41',
-      layoutData: {top: 12, right: 10}
-    }).appendTo(content)
-
-    // Check if is the last itme in the array so it doesnt create the las line
-    if (index !== array.length - 1) {
-      tabris.create('TextView', {
-        background: '#dddfe6',
-        layoutData: {top: ['prev()', 10], height: 0.5, right: 0, left: 0}
-      }).appendTo(content)
-    }
-  })
-
-  tabris.create('ImageView', {
-    image: {src: 'images/view_more.png', scale: 3},
-    layoutData: {right: 20},
-    centerY: 0
-  }).appendTo(container)
-
-  return null
-}
-
 module.exports = {
   editableGroup: createEditableGroup,
-  line: createLine,
-  price: itemPrice
+  line: createLine
 }

@@ -104,10 +104,12 @@ function init (data, widget) {
 
   function createStatus (text, container) {
     new tabris.TextView({
+      font: '16px',
+      textColor: '#252c41',
       text: '<br/> ' + text + ' <br/>',
       markupEnabled: true,
       // background: 'blue',
-      layoutData: {top: ['prev()', 5], right: 35, left: 15}
+      layoutData: {top: ['prev()', 0], right: 35, left: 15}
     }).on('tap', function (widget) {
       widget.animate({
         opacity: 0.2
