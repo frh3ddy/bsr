@@ -1,11 +1,17 @@
 /* global tabris */
+var connection = require('./authenticate')
 
 var IMAGE_PATH = 'images/computer-parts/'
 var THUMB_SIZE = 48
 var MARGIN = 12
 var ANIMATION_START_DELAY = 200
 
-function init (page) {
+function init (data, widget) {
+  var page = new tabris.Page({
+    title: data.customer.name,
+    background: '#252c41'
+  })
+
   var repairs = [
   ['LCD', 'lcd.png'],
   ['Power Supply', 'power-supply.png'],
@@ -24,7 +30,6 @@ function init (page) {
   })
 
   var scrollView = new tabris.ScrollView({
-    background: '#252c41',
     layoutData: {top: 0, bottom: 0, left: 0, right: 0}
   }).appendTo(page)
 
@@ -172,6 +177,8 @@ function init (page) {
     inside.children().dispose()
     inside.set('visible', false)
   }
+
+  page.open()
 }
 
 module.exports = init

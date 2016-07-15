@@ -2,6 +2,7 @@
 
 var editIssues = require('./editIssues')
 var updateStatus = require('./updateStatus')
+var priceUpdate = require('./pricePrototype')
 
 var MARGINLEFT = 10
 
@@ -77,7 +78,7 @@ function itemPrice (props) {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-
+    priceUpdate(props.data)
   }).appendTo(props.parent)
 
   tabris.create('TextView', {
@@ -87,7 +88,9 @@ function itemPrice (props) {
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
   }).appendTo(container)
 
-  props.data.forEach(function (el, index, array) {
+  var repairs = createArray(props.array)
+
+  repairs.forEach(function (el, index, array) {
     var content = new tabris.Composite({
       layoutData: {top: ['prev()', 12], left: MARGINLEFT + 15, right: 40}
     }).appendTo(container)
@@ -122,6 +125,12 @@ function itemPrice (props) {
   }).appendTo(container)
 
   return null
+}
+
+function createArray (repairsArray) {
+  return repairsArray.map(function (repair) {
+    return repair.split('-')
+  })
 }
 
 module.exports = {
