@@ -63,6 +63,14 @@ function init (data, widget) {
     }
   }).appendTo(scrollView)
 
+  var editContainer = new tabris.Composite({
+    layoutData: {top: 20, left: 0, right: 0}
+  }).appendTo(scrollView)
+
+  new tabris.TextView({
+    text: 'test'
+  }).appendTo(editContainer)
+
   var inside = new tabris.ScrollView({
     direction: 'horizontal',
     background: '#dddfe6',
