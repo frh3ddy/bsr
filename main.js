@@ -21,7 +21,17 @@ var collectionView = new tabris.CollectionView({
   itemHeight: 64,
   items: items,
   initializeCell: function (cell) {
+    //global this
+    var cellWidth = this.screen.width
     cell.set('background', '#d0d0d0')
+
+    new tabris.Composite({
+      background: 'blue',
+      layoutData: {right: 0, width: cellWidth / 2, top: 0, bottom: 0}
+    }).on('tap', function () {
+      collectionView.remove(container.parent().get("itemIndex"));
+    }).appendTo(cell)
+
     var container = new tabris.Composite({
       background: 'white',
       layoutData: {left: 0, top: 0, bottom: 0, right: 0}
@@ -32,21 +42,26 @@ var collectionView = new tabris.CollectionView({
     }).on('tap', function (widget, event) {
       animateCancel(event, widget)
     }).appendTo(cell)
+
     var senderView = new tabris.TextView({
       font: 'bold 18px',
       layoutData: {top: VERTICAL_MARGIN, left: HORIZONTAL_MARGIN}
     }).appendTo(container)
+
     var titleView = new tabris.TextView({
       layoutData: {bottom: VERTICAL_MARGIN, left: HORIZONTAL_MARGIN}
     }).appendTo(container)
+
     var timeView = new tabris.TextView({
       textColor: '#b8b8b8',
       layoutData: {top: VERTICAL_MARGIN, right: HORIZONTAL_MARGIN}
     }).appendTo(container)
+
     new tabris.Composite({
       background: '#b8b8b8',
-      layoutData: {left: 0, bottom: 0, right: 0, height: 1}
+      layoutData: {left: 0, bottom: 0, right: 0, height: 0.5}
     }).appendTo(cell)
+
     cell.on('change:item', function (widget, message) {
       container.set({transform: {}, message: message})
       senderView.set('text', message.sender)
