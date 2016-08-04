@@ -177,11 +177,7 @@ function orderPage (order) {
     parent: orderDetailsSection,
     label: 'Price for Each Repair',
     bodyText: order.status,
-    data: order,
-    // need to check if the value is an array
-    array: order.repairs
-      ? order.repairs.concat('Quoted Price-' + order.quoted_price)
-      : ['Quoted Price-' + order.quoted_price]
+    data: order
   })
 
   add.line({parent: orderDetailsSection})

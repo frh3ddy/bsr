@@ -74,11 +74,18 @@ function createLine (props) {
 }
 
 function itemPrice (props) {
+  // need to check if the value is an array
+  var pricesArray = props.data.repairs
+    ? props.data.repairs.concat('Quoted Price-' + props.data.quoted_price)
+    : ['Quoted Price-' + props.data.quoted_price]
+
+  var repairs = createArray(pricesArray)
+
   var container = tabris.create('Composite', {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-    priceUpdate(props.data)
+    priceUpdate(repairs)
   }).appendTo(props.parent)
 
   tabris.create('TextView', {
@@ -88,7 +95,6 @@ function itemPrice (props) {
     layoutData: {top: 6, left: MARGINLEFT, right: 0}
   }).appendTo(container)
 
-  var repairs = createArray(props.array)
 
   repairs.forEach(function (el, index, array) {
     var content = new tabris.Composite({
@@ -109,7 +115,7 @@ function itemPrice (props) {
       layoutData: {top: 12, right: 10}
     }).appendTo(content)
 
-    // Check if is the last itme in the array so it doesnt create the las line
+    // Check if it is the last item in the array and dont create the las line
     if (index !== array.length - 1) {
       tabris.create('TextView', {
         background: '#dddfe6',
