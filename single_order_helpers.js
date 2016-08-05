@@ -85,7 +85,7 @@ function itemPrice (props) {
     layoutData: {top: ['prev()', 0], left: 0, right: 0},
     highlightOnTouch: true
   }).on('tap', function () {
-    priceUpdate(repairs)
+    priceUpdate(repairs, props.data)
   }).appendTo(props.parent)
 
   tabris.create('TextView', {

@@ -8,18 +8,16 @@ var ANIMATION_START_DELAY = 200
 var HORIZONTAL_MARGIN = 16
 var VERTICAL_MARGIN = 20
 
-function init (data, widget) {
+function init (repairsDone, data, widget) {
   var page = new tabris.Page({
-    title: 'test',
+    title: data.id,
     background: '#252c41'
   })
 
-  console.log(data)
-
-  var repairs = [
+  var repairsList = [
   ['LCD', 'lcd.png'],
   ['Power Supply', 'power-supply.png'],
-  ['GraphicCard', 'video-card.png'],
+  ['Graphics Card', 'video-card.png'],
   ['Memory Ram', 'memory-ram.png'],
   ['Charging Port', 'charging-port.png'],
   ['Battery', 'battery.png'],
@@ -32,10 +30,6 @@ function init (data, widget) {
   ].map(function (element) {
     return {name: element[0], image: IMAGE_PATH + element[1]}
   })
-
-  // var scrollView = new tabris.ScrollView({
-  //   layoutData: {top: 0, bottom: 0, left: 0, right: 0}
-  // }).appendTo(page)
 
   var addButton = new tabris.ImageView({
     image: {src: 'images/add.png', scale: 3},
@@ -58,21 +52,10 @@ function init (data, widget) {
     }
   }).appendTo(page)
 
-  var items = [
-    {title: 'Up for lunch?', sender: 'John Smith', time: '11:35'},
-    {title: 'JavaScript for mobile applications', sender: 'JavaScript Newsletter', time: '08:03'},
-    {title: 'This is just a spam message', sender: 'Spammer', time: '04:32'},
-    {title: 'CoolGrocery Discount Newsletter', sender: 'Local CoolGrocery', time: 'yesterday'},
-    {title: 'Cinema this weekend?', sender: 'Robert J. Schmidt', time: 'yesterday'},
-    {title: 'Coffee Club Newsletter', sender: 'Coffee Club', time: 'yesterday'},
-    {title: 'Fraud mail', sender: 'Unsuspicious Jack', time: 'yesterday'}
-  ]
-
-
   var collectionView = new tabris.CollectionView({
     layoutData: {left: 0, right: 0, top: 80, height: screen.height - 80},
     itemHeight: 64,
-    items: data,
+    items: repairsDone,
     initializeCell: function (cell) {
       //global this
       var cellWidth = this.screen.width
@@ -84,7 +67,7 @@ function init (data, widget) {
       }).appendTo(cell)
 
       new tabris.TextView({
-        text: 'Delete',
+        text: 'Remove',
         alignment: 'center',
         textColor: '#fff',
         background: '#E53A40',
@@ -190,14 +173,6 @@ function init (data, widget) {
 
   //---------------------------------
 
-  // var editContainer = new tabris.Composite({
-  //   layoutData: {top: 20, left: 0, right: 0}
-  // }).appendTo(scrollView)
-  //
-  // new tabris.TextView({
-  //   text: 'test'
-  // }).appendTo(editContainer)
-
   var inside = new tabris.ScrollView({
     direction: 'horizontal',
     background: '#dddfe6',
@@ -205,7 +180,7 @@ function init (data, widget) {
   }).on('resize', function (widget, bounds) {
     this.children().dispose()
     var thumbsize = 120
-    repairs.forEach(function (repair, index) {
+    repairsList.forEach(function (repair, index) {
       animateInFromBottom(createRepairThumb(widget, repair, thumbsize), index)
     })
   })
@@ -283,7 +258,7 @@ function init (data, widget) {
   }
 
   function logIt (price) {
-    console.log(price)
+    updateRepairs(price)
   }
 
   function showComfirmAddButton (widget, input) {
@@ -292,7 +267,7 @@ function init (data, widget) {
       layoutData: {centerX: 0, centerY: -20, width: 100}
     }).on('select', function () {
       input.siblings('TextView')[0].get('text')
-      logIt([input.get('text'), input.siblings('TextView')[0].get('text')])
+      logIt([input.siblings('TextView')[0].get('text'), input.get('text')])
       hideRepairs()
     }).insertBefore(widget)
   }
@@ -301,7 +276,7 @@ function init (data, widget) {
     if (inside.parent()) {
       inside.set('visible', true)
       var thumbsize = 120
-      repairs.forEach(function (repair, index) {
+      repairsList.forEach(function (repair, index) {
         animateInFromBottom(createRepairThumb(inside, repair, thumbsize), index)
       })
     } else {
@@ -322,6 +297,38 @@ function init (data, widget) {
 
     inside.children().dispose()
     inside.set('visible', false)
+  }
+
+  function updateRepairs (newRepair) {
+    var query = {
+      id: data.id,
+      instanceName: 'laptopbsr',
+      className: 'edison_orders'
+    }
+
+    var newRepairs = repairsDone.map(function (repair) {
+      return repair.join('-')
+    })
+
+    newRepairs.splice(-1,1)
+
+    var DataObject = null
+
+    if (connection.DataObject() !== null) {
+      DataObject = connection.DataObject()
+    } else {
+      connection.init()
+      DataObject = connection.DataObject()
+    }
+
+    var updateObject = {
+      repairs: newRepairs.concat(newRepair.join('-'))
+    }
+
+    DataObject.please().update(query, updateObject).then(function (book, raw) {
+      collectionView.insert([newRepair], 0)
+      collectionView.reveal(0)
+    })
   }
 
   page.open()
