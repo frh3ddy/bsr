@@ -6,7 +6,7 @@ var collectionList = require('./collectionList')
 var login = require('./login')
 var db = require('./localStorage')
 var realTime = require('./realtime')
-var API_KEY = '29dd175e36b211889ee4e794fbdb6994be305dfb'
+var API_KEY = ''
 
 tabris.app.on('pause', function () {
   if (realTime.getPoll() !== null) {
